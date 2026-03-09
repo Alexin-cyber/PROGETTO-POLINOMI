@@ -707,5 +707,6 @@ int main() {
 		cout << "\nNON E' POSSIBILE TROVARE IL PUNTO DI INTERSEZIONE DI UN POLINOMIO DI 3 GRADO!";
 	}
 
+	system("pause");
 	return 0;
 }
