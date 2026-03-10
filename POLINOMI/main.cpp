@@ -4,9 +4,31 @@
 using namespace std;
 
 int main() {
+    // Costanti per stabilire il range massimo dei polinomi
     const int MAX = 4, MAX2 = 16;
+    
+    // Variabili utilizzati per stabilire i gradi massimi dei vari polinomi
     int gradoMaxPolinomio1, gradoMaxPolinomio2, gradoMax, index;
-    int polinomio1[MAX]{0}, polinomio2[MAX]{0}, polinomioSomma[MAX]{0}, polinomioDifferenza[MAX]{0}, gradoPolinomio[MAX2]{0}, polinomioProdotto[MAX2]{0}, polinomioProdottoSomma[MAX2]{0};
+
+    // Variabili utilizzati per la risoluzione di un'equazione di secondo grado
+    int delta, numeratore1, numeratore2, denominatore1, denominatore2, resto, mcd1, mcd2, mcdDenominatore, a, b, c;
+
+    // Array che contengono i valori dei due polinomi
+    int polinomio1[MAX]{0}, polinomio2[MAX]{0};
+
+    // Array che contengono i valori delle operazioni tra il primo e il secondo polinomio
+    int polinomioSomma[MAX]{0}, polinomioDifferenza[MAX]{0}, gradoPolinomio[MAX2]{0}, polinomioProdotto[MAX2]{0}, polinomioProdottoSomma[MAX2]{0};
+
+    // Variabili utilizzati per la semplificazione delle radici
+    int parteInterna, parteEsterna, cont, numeratore, denominatore, n;
+
+    // Variabili utilizzati per la risoluzione di un'equazione di primo grado
+    int termineNoto, terminePrimoGrado;
+    bool isImpossibile, isIndeterminato;
+
+    // Variabili utilizzati per trovare i punti di intersezione
+    float deltaDecimal, numeratoreDecimal, denominatoreDecimal, x1, x2, y1, y2, aDecimal, bDecimal, cDecimal, termineNotoDecimal, terminePrimoGradoDecimal;
+
     char opzione;
     bool isFirstTime = true, isRunning = true;
 
@@ -363,7 +385,7 @@ int main() {
                     polinomioDifferenza[i] = 0;
                 }
                 
-                // Calcolo della somma dei due polinomi
+                // Calcolo della differnza dei due polinomi
                 for (int i = MAX - 1; i >= 0; i--) {
                     polinomioDifferenza[i] = polinomio1[i] - polinomio2[i];
                 }
@@ -375,7 +397,7 @@ int main() {
                     gradoMax = gradoMaxPolinomio2;
                 }
 
-                // Gestione output del polinomio somma
+                // Gestione output del polinomio differenza
                 cout << "\033[32mLa differenza tra i due polinomi equivale a: \033[0m\n\n";
 
                 cout << "(";
@@ -424,7 +446,7 @@ int main() {
 
                 cout << ") = ";
 
-                // assegna il segno (+, -) al primo numero del polinomio somma
+                // assegna il segno (+, -) al primo numero del polinomio differenza
                 if (polinomioDifferenza[gradoMax] != 0) {
                     if (polinomioDifferenza[gradoMax] > 0) {
                         cout << "+";
@@ -576,7 +598,548 @@ int main() {
                 system("cls");
                 break;
             case '5':
+                system("cls");
+                cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
+                cout << "\033[36m|"<< "\033[1m                     RICERCA E VISUALIZZAZIONE DEGLI ZERI                      " << "\033[1m|\033[0m\n";
+                cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n\n";
+
+                cout << "\033[32mLe soluzioni/e del primo polinomio sono/e': \033[0m\n";
+                if (polinomio1[MAX - 1] == 0) {
+                    if (polinomio1[MAX - 2] != 0) {
+                        a = polinomio1[MAX - 2], b = polinomio1[MAX - 3], c = polinomio1[MAX - 4];
+                        delta = pow(b, 2) - 4 * a * c;
+
+                        if (pow(sqrt(delta), 2) != delta && delta > 0) { // verifica se la radice è perfetta o meno
+                            parteInterna = 1, parteEsterna = 1, numeratore = -b, denominatore = 2 * a;
+
+                            n = delta;
+
+                            // Semplificazione della radice
+                            for (int i = 2; i <= delta; i++) {
+                                cont = 0; 
+
+                                while (n % i == 0) {
+                                    n /= i;
+                                    cont++;
+                                }
+
+                                if (cont > 0) {
+                                    if (cont % 2 == 0) {
+							            parteEsterna *= pow(i, cont / 2);
+                                    } else {
+                                        if (cont > 1)
+                                            parteEsterna *= pow(i, cont / 2);
+                                        parteInterna *= i;
+                                    }
+                                }
+                            }
+
+                            mcd1 = abs(numeratore);
+				            mcd2 = abs(parteEsterna);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra il numeratore e il denominarore
+                            while (mcd1 % mcd2 > 0) {
+                                resto = mcd1 % mcd2;
+                                mcd1 = mcd2;
+
+                                if (resto != 0)
+                                    mcd2 = resto;
+                            }
+
+                            numeratore = numeratore / mcd2;
+				            parteEsterna = parteEsterna / mcd2;
+
+                            mcd1 = abs(mcd2);
+				            mcdDenominatore = abs(denominatore);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra mcd del numeratore e la parte esterna e il denominarore
+                            while (mcd1 % mcdDenominatore > 0) {
+                                resto = mcd1 % mcdDenominatore;
+                                mcd1 = mcdDenominatore;
+
+                                if (resto != 0)
+                                    mcdDenominatore = resto;
+                            }
+
+                            mcd2 = mcd2 / mcdDenominatore;
+				            denominatore = denominatore / mcdDenominatore;
+
+                            // Gestione output delle soluzione del polinomio di secondo grado
+                            if (denominatore == 1 && b == 0) {
+                                cout << "\nx(1) = " << "\033[1m" << " + " << parteEsterna << "*" << "sqrt(" << parteInterna << ")" << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << " - " << parteEsterna << "*" << "sqrt(" << parteInterna << ")" << "\033[0m\n";
+                            } else if (mcd2 % denominatore != 0) {
+                                cout << "\nx(1) = "  << "\033[1m" << "(" << mcd2 * numeratore << " + " << parteEsterna * mcd2 << "*" <<"sqrt(" << parteInterna << ")" << ")" << "/" << denominatore << "\033[0m\n";
+                                cout <<  "\nx(2) = " << "\033[1m" << "(" << mcd2 * numeratore << " - " << parteEsterna * mcd2 << "*" <<"sqrt(" << parteInterna << ")" << ")" << "/" << denominatore << "\033[0m";
+                            } else {
+                                cout << "\nx(1) = " << "\033[1m" << numeratore << " + " << parteEsterna << "*" << "sqrt(" << parteInterna << ")" << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << numeratore << " - " << parteEsterna << "*" << "sqrt(" << parteInterna << ")" << "\033[0m";
+                            }
+                        } else if (delta > 0) {
+                            numeratore1 = -b + sqrt(delta);
+                            numeratore2 = -b - sqrt(delta);
+
+                            denominatore1 = 2 * a;
+                            denominatore2 = 2 * a;
+
+                            mcd1 = abs(numeratore1);
+                            mcd2 = abs(denominatore1);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra il primo numeratore e il denominarore
+                            while (mcd1 % mcd2 > 0) {
+                                resto = mcd1 % mcd2;
+                                mcd1 = mcd2;
+
+                                if (resto != 0)
+                                    mcd2 = resto;
+                            }
+
+                            numeratore1 = numeratore1 / mcd2;
+                            denominatore1 = denominatore1 / mcd2;
+
+                            mcd1 = abs(numeratore2);
+                            mcd2 = abs(denominatore2);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra il secondo numeratore e il denominarore
+                            while (mcd1 % mcd2 > 0) {
+                                resto = mcd1 % mcd2;
+                                mcd1 = mcd2;
+
+                                if (resto != 0)
+                                    mcd2 = resto;
+                            }
+
+                            numeratore2 = numeratore2 / mcd2;
+                            denominatore2 = denominatore2 / mcd2;
+
+                            // Gestione output delle soluzioni del polinomio di secondo grado
+                            if (numeratore1 % denominatore1 != 0 && numeratore2 % denominatore2 != 0) {
+                                cout << "\nx(1) = " << "\033[1m" << numeratore1 << "/" << denominatore1 << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << numeratore2 << "/" << denominatore2 << "\033[0m";
+                            } else if (numeratore1 % denominatore1 != 0 && numeratore2 % denominatore2 == 0) {
+                                cout << "\nx(1) = " << "\033[1m" << numeratore1 << "/" << denominatore1 << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << numeratore2 << "\033[0m";
+                            } else if (numeratore1 % denominatore1 == 0 && numeratore2 % denominatore2 != 0) {
+                                cout << "\nx(1) = " << "\033[1m" << numeratore1 << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << numeratore2 << "/" << denominatore2 << "\033[0m";
+                            } else {
+                                cout << "\nx(1) = " << "\033[1m" << numeratore1 << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << numeratore2 << "\033[0m";
+                            }
+                        } else if (delta == 0) {
+                            numeratore1 = -b;
+                            denominatore1 = 2 * a;
+
+                            mcd1 = abs(numeratore1);
+                            mcd2 = abs(denominatore1);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra il primo numeratore e il denominarore
+                            while (mcd1 % mcd2 > 0) {
+                                resto = mcd1 % mcd2;
+                                mcd1 = mcd2;
+
+                                if (resto != 0)
+                                    mcd2 = resto;
+                            }
+
+                            numeratore1 = numeratore1 / mcd2;
+                            denominatore1 = denominatore1 / mcd2;
+
+                            if (numeratore1 % denominatore1 != 0)
+                                cout << "\nx(1) e x(2) = " << "\033[1m" << numeratore1 << "/" << denominatore1 << "\033[0m\n";
+                            else 
+                                cout << "\nx(1) e x(2) = " << "\033[1m" << numeratore1 << "\033[0m";
+                        } else {
+                            cout << "\n\033[31mNon sono presenti soluzioni per questo polinomio!\033[0m";
+                        }
+                    } else {
+                        termineNoto = polinomio1[MAX - 4], terminePrimoGrado = polinomio1[MAX - 3];
+			            isImpossibile = false, isIndeterminato = false;
+
+                        if (termineNoto > 0 && terminePrimoGrado > 0) {
+                            termineNoto = -termineNoto;
+                        } else if (termineNoto < 0 && terminePrimoGrado > 0) {
+                            termineNoto = abs(termineNoto);
+                        } else if ((termineNoto > 0 && terminePrimoGrado < 0) || (termineNoto < 0 && terminePrimoGrado < 0)) {
+                            terminePrimoGrado = abs(terminePrimoGrado);
+                        } else if (termineNoto == 0 && terminePrimoGrado == 0) {
+                            isIndeterminato = true;
+                        } else if (termineNoto != 0 && terminePrimoGrado == 0) {
+                            isImpossibile = true;
+                        }
+
+                        if (!isImpossibile && !isIndeterminato) {
+                            mcd1 = abs(termineNoto);
+                            mcd2 = abs(terminePrimoGrado);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra il secondo numeratore e il denominarore
+                            while (mcd1 % mcd2 > 0) {
+                                resto = mcd1 % mcd2;
+                                mcd1 = mcd2;
+
+                                if (resto != 0)
+                                    mcd2 = resto;
+                            }
+
+                            termineNoto = termineNoto / mcd2;
+                            terminePrimoGrado = terminePrimoGrado / mcd2;
+                        }
+
+                        if (isIndeterminato) {
+                            cout << "\n\033[31mIl polinomio risulta indeterminato!\033[0m\n";
+                        } else if (isImpossibile) {
+                            cout << "\n\033[31mIl polinomio risulta impossibile!\033[0m";
+                        } else if (termineNoto % terminePrimoGrado != 0){
+                            cout << "\nx(1) = " << "\033[1m" << termineNoto << "/" << terminePrimoGrado << "\033[0m\n";
+                        } else {
+                            cout << "\nx(1) = " << "\033[1m" << termineNoto << "\033[0m";
+                        } 
+                    }
+                } else {
+                    cout << "\n\033[31mNon e' possibile trovare le soluzioni di un polinomio di 3 grado!\n\033[0m";
+                }
+
+                cout << "\n\n\033[32mLe soluzioni/e del secondo polinomio sono/e': \033[0m\n";
+                if (polinomio2[MAX - 1] == 0) {
+                    if (polinomio2[MAX - 2] != 0) {
+                        a = polinomio2[MAX - 2], b = polinomio2[MAX - 3], c = polinomio2[MAX - 4];
+                        delta = pow(b, 2) - 4 * a * c;
+
+                        if (pow(sqrt(delta), 2) != delta && delta > 0) { // verifica se la radice è perfetta o meno
+                            parteInterna = 1, parteEsterna = 1, numeratore = -b, denominatore = 2 * a;
+
+                            n = delta;
+
+                            // Semplificazione della radice
+                            for (int i = 2; i <= delta; i++) {
+                                cont = 0; 
+
+                                while (n % i == 0) {
+                                    n /= i;
+                                    cont++;
+                                }
+
+                                if (cont > 0) {
+                                    if (cont % 2 == 0) {
+							            parteEsterna *= pow(i, cont / 2);
+                                    } else {
+                                        if (cont > 1)
+                                            parteEsterna *= pow(i, cont / 2);
+                                        parteInterna *= i;
+                                    }
+                                }
+                            }
+
+                            mcd1 = abs(numeratore);
+				            mcd2 = abs(parteEsterna);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra il numeratore e il denominarore
+                            while (mcd1 % mcd2 > 0) {
+                                resto = mcd1 % mcd2;
+                                mcd1 = mcd2;
+
+                                if (resto != 0)
+                                    mcd2 = resto;
+                            }
+
+                            numeratore = numeratore / mcd2;
+				            parteEsterna = parteEsterna / mcd2;
+
+                            mcd1 = abs(mcd2);
+				            mcdDenominatore = abs(denominatore);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra mcd del numeratore e la parte esterna e il denominarore
+                            while (mcd1 % mcdDenominatore > 0) {
+                                resto = mcd1 % mcdDenominatore;
+                                mcd1 = mcdDenominatore;
+
+                                if (resto != 0)
+                                    mcdDenominatore = resto;
+                            }
+
+                            mcd2 = mcd2 / mcdDenominatore;
+				            denominatore = denominatore / mcdDenominatore;
+
+                            // Gestione output delle soluzione del polinomio di secondo grado
+                            if (denominatore == 1 && b == 0) {
+                                cout << "\nx(1) = " << "\033[1m" << " + " << parteEsterna << "*" << "sqrt(" << parteInterna << ")" << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << " - " << parteEsterna << "*" << "sqrt(" << parteInterna << ")" << "\033[0m\n";
+                            } else if (mcd2 % denominatore != 0) {
+                                cout << "\nx(1) = "  << "\033[1m" << "(" << mcd2 * numeratore << " + " << parteEsterna * mcd2 << "*" <<"sqrt(" << parteInterna << ")" << ")" << "/" << denominatore << "\033[0m\n";
+                                cout <<  "\nx(2) = " << "\033[1m" << "(" << mcd2 * numeratore << " - " << parteEsterna * mcd2 << "*" <<"sqrt(" << parteInterna << ")" << ")" << "/" << denominatore << "\033[0m";
+                            } else {
+                                cout << "\nx(1) = " << "\033[1m" << numeratore << " + " << parteEsterna << "*" << "sqrt(" << parteInterna << ")" << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << numeratore << " - " << parteEsterna << "*" << "sqrt(" << parteInterna << ")" << "\033[0m";
+                            }
+                        } else if (delta > 0) {
+                            numeratore1 = -b + sqrt(delta);
+                            numeratore2 = -b - sqrt(delta);
+
+                            denominatore1 = 2 * a;
+                            denominatore2 = 2 * a;
+
+                            mcd1 = abs(numeratore1);
+                            mcd2 = abs(denominatore1);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra il primo numeratore e il denominarore
+                            while (mcd1 % mcd2 > 0) {
+                                resto = mcd1 % mcd2;
+                                mcd1 = mcd2;
+
+                                if (resto != 0)
+                                    mcd2 = resto;
+                            }
+
+                            numeratore1 = numeratore1 / mcd2;
+                            denominatore1 = denominatore1 / mcd2;
+
+                            mcd1 = abs(numeratore2);
+                            mcd2 = abs(denominatore2);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra il secondo numeratore e il denominarore
+                            while (mcd1 % mcd2 > 0) {
+                                resto = mcd1 % mcd2;
+                                mcd1 = mcd2;
+
+                                if (resto != 0)
+                                    mcd2 = resto;
+                            }
+
+                            numeratore2 = numeratore2 / mcd2;
+                            denominatore2 = denominatore2 / mcd2;
+
+                            // Gestione output delle soluzioni del polinomio di secondo grado
+                            if (numeratore1 % denominatore1 != 0 && numeratore2 % denominatore2 != 0) {
+                                cout << "\nx(1) = " << "\033[1m" << numeratore1 << "/" << denominatore1 << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << numeratore2 << "/" << denominatore2 << "\033[0m";
+                            } else if (numeratore1 % denominatore1 != 0 && numeratore2 % denominatore2 == 0) {
+                                cout << "\nx(1) = " << "\033[1m" << numeratore1 << "/" << denominatore1 << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << numeratore2 << "\033[0m";
+                            } else if (numeratore1 % denominatore1 == 0 && numeratore2 % denominatore2 != 0) {
+                                cout << "\nx(1) = " << "\033[1m" << numeratore1 << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << numeratore2 << "/" << denominatore2 << "\033[0m";
+                            } else {
+                                cout << "\nx(1) = " << "\033[1m" << numeratore1 << "\033[0m\n";
+                                cout << "\nx(2) = " << "\033[1m" << numeratore2 << "\033[0m";
+                            }
+                        } else if (delta == 0) {
+                            numeratore1 = -b;
+                            denominatore1 = 2 * a;
+
+                            mcd1 = abs(numeratore1);
+                            mcd2 = abs(denominatore1);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra il primo numeratore e il denominarore
+                            while (mcd1 % mcd2 > 0) {
+                                resto = mcd1 % mcd2;
+                                mcd1 = mcd2;
+
+                                if (resto != 0)
+                                    mcd2 = resto;
+                            }
+
+                            numeratore1 = numeratore1 / mcd2;
+                            denominatore1 = denominatore1 / mcd2;
+
+                            if (numeratore1 % denominatore1 != 0)
+                                cout << "\nx(1) e x(2) = " << "\033[1m" << numeratore1 << "/" << denominatore1 << "\033[0m\n";
+                            else 
+                                cout << "\nx(1) e x(2) = " << "\033[1m" << numeratore1 << "\033[0m";
+                        } else {
+                            cout << "\n\033[31mNon sono presenti soluzioni per questo polinomio!\033[0m";
+                        }
+                    } else {
+                        termineNoto = polinomio2[MAX - 4], terminePrimoGrado = polinomio2[MAX - 3];
+			            isImpossibile = false, isIndeterminato = false;
+
+                        if (termineNoto > 0 && terminePrimoGrado > 0) {
+                            termineNoto = -termineNoto;
+                        } else if (termineNoto < 0 && terminePrimoGrado > 0) {
+                            termineNoto = abs(termineNoto);
+                        } else if ((termineNoto > 0 && terminePrimoGrado < 0) || (termineNoto < 0 && terminePrimoGrado < 0)) {
+                            terminePrimoGrado = abs(terminePrimoGrado);
+                        } else if (termineNoto == 0 && terminePrimoGrado == 0) {
+                            isIndeterminato = true;
+                        } else if (termineNoto != 0 && terminePrimoGrado == 0) {
+                            isImpossibile = true;
+                        }
+
+                        if (!isImpossibile && !isIndeterminato) {
+                            mcd1 = abs(termineNoto);
+                            mcd2 = abs(terminePrimoGrado);
+
+                            // Algoritmo di Euclide utilizzato per calcolare MCD tra il secondo numeratore e il denominarore
+                            while (mcd1 % mcd2 > 0) {
+                                resto = mcd1 % mcd2;
+                                mcd1 = mcd2;
+
+                                if (resto != 0)
+                                    mcd2 = resto;
+                            }
+
+                            termineNoto = termineNoto / mcd2;
+                            terminePrimoGrado = terminePrimoGrado / mcd2;
+                        }
+
+                        if (isIndeterminato) {
+                            cout << "\n\033[31mIl polinomio risulta indeterminato!\033[0m";
+                        } else if (isImpossibile) {
+                            cout << "\n\033[31mIl polinomio risulta impossibile!\033[0m";
+                        } else if (termineNoto % terminePrimoGrado != 0){
+                            cout << "\nx(1) = " << "\033[1m" << termineNoto << "/" << terminePrimoGrado << "\033[0m\n";
+                        } else {
+                            cout << "\nx(1) = " << "\033[1m" << termineNoto << "\033[0m";
+                        } 
+                    }
+                } else {
+                    cout << "\n\033[31mNon e' possibile trovare le soluzioni di un polinomio di 3 grado!\033[0m";
+                }
+
+                cout << "\n\n\033[4mPremere qualsiasi tasto per continuare...\033[0m";
+                getch();
+                system("cls");
+                break;
             case '6':
+                system("cls");
+                cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
+                cout << "\033[36m|"<< "\033[1m              RICERCA E VISUALIZZAZIONE DEI PUNTI DI INTERSEZIONE              " << "\033[1m|\033[0m\n";
+                cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n\n";
+
+                // Calcolo della differnza dei due polinomi
+                for (int i = MAX - 1; i >= 0; i--) {
+                    polinomioDifferenza[i] = polinomio1[i] - polinomio2[i];
+                }
+
+                cout << "\033[32mIl punto di intersezione dei polinomi: \033[0m\n";
+
+                cout << "\033[1m";
+                for (int i = gradoMaxPolinomio1; i >= 0; i--) {
+                    if (polinomio1[i] != 0) {
+                        if (i != 0) {
+                            cout << abs(polinomio1[i]) << "x^" << i;
+
+                            if (polinomio1[i - 1] != 0) {
+                                cout << " ";
+                            }
+                        } else {
+                            cout << abs(polinomio1[i]);
+                        }
+                    }
+                    
+                    if (i != 0 && polinomio1[i - 1] != 0) {
+                        cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                    }
+                }
+                cout << "\033[0m";
+
+                cout << " e ";
+
+                cout << "\033[1m";
+                for (int i = gradoMaxPolinomio2; i >= 0; i--) {
+                    if (polinomio2[i] != 0) {
+                        if (i != 0) {
+                            cout << abs(polinomio2[i]) << "x^" << i << " ";
+                        } else {
+                            cout << abs(polinomio2[i]);
+                        }
+                    }
+                    
+                    if (i != 0 && polinomio2[i - 1] != 0) {
+                        cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                    }
+                }
+                cout << "\033[0m\n";
+
+                if (polinomioDifferenza[MAX - 1] == 0) {
+                    if (polinomioDifferenza[MAX - 2] != 0) {
+                        aDecimal = polinomioDifferenza[MAX - 2], bDecimal = polinomioDifferenza[MAX - 3], cDecimal = polinomioDifferenza[MAX - 4];
+                        y1 = 0, y2 = 0;
+                        deltaDecimal = pow(bDecimal, 2) - 4 * aDecimal * cDecimal;
+
+                        if (deltaDecimal > 0) {
+                            x1 = (-bDecimal + sqrt(deltaDecimal)) / (2 * aDecimal);
+                            x2 = (-bDecimal - sqrt(deltaDecimal)) / (2 * aDecimal);
+
+                            for (int i = MAX - 2; i >= 0; i--) {
+                                if (polinomio1[i] != 0) {
+                                    // i deve essere diverso da zero per evitare situzine 0^0
+                                    if (i != 0) {
+                                        y1 += pow(x1, i) * polinomio1[i];
+                                        y2 += pow(x2, i) * polinomio1[i];
+                                    } else {
+                                        y1 += polinomio1[i];
+                                        y2 += polinomio1[i];
+                                    }
+                                }
+                            }
+
+                            cout << "\n(" << "\033[1m" << x1 << ", " << y1 << "\033[0m" << ")" << "\n";
+                            cout << "(" << "\033[1m" << x2 << ", " << y2 << "\033[0m" << ")";
+
+                        } else if (deltaDecimal == 0) {
+                            x1 = -bDecimal / (2 * aDecimal);
+
+                            for (int i = MAX - 2; i >= 0; i--) {
+                                if (polinomio1[i] != 0) {
+                                    // i deve essere diverso da zero per evitare situzine 0^0
+                                    if (i != 0) 
+                                        y1 += pow(x1, i) * polinomio1[i];
+                                    else 
+                                        y1 += polinomio1[i];
+                                }
+                            }
+
+                            cout << "\n(" << "\033[1m" << x1 << ", " << y1 << "\033[0m" << ")" << "\n";
+                        } else {
+                            cout << "\n\033[31mI due polinomi non si intersecano!\033[0m";
+                        }
+                    } else {
+                        isImpossibile = false, isIndeterminato = false;
+                        termineNotoDecimal = polinomioDifferenza[MAX - 4], terminePrimoGradoDecimal = polinomioDifferenza[MAX - 3];
+                        y1 = 0;
+
+                        if (termineNotoDecimal > 0 && terminePrimoGradoDecimal > 0) {
+                            termineNotoDecimal = -termineNotoDecimal;
+                        } else if (termineNotoDecimal < 0 && terminePrimoGradoDecimal > 0) {
+                            termineNotoDecimal = abs(termineNotoDecimal);
+                        } else if ((termineNotoDecimal > 0 && terminePrimoGradoDecimal < 0) || (termineNotoDecimal < 0 && terminePrimoGradoDecimal < 0)) {
+                            terminePrimoGradoDecimal = abs(terminePrimoGradoDecimal);
+                        } else if (termineNotoDecimal == 0 && terminePrimoGradoDecimal == 0) {
+                            isIndeterminato = true;
+                        } else if (termineNotoDecimal != 0 && terminePrimoGradoDecimal == 0) {
+                            isImpossibile = true;
+                        }
+
+                        if (isIndeterminato) {
+                            if (polinomio1[MAX - 2] != 0 && polinomio2[MAX - 2] != 0) {
+                                cout << "\n\033[31mLe due parabole sono coincidenti!\033[0m";
+                            } else {
+                                cout << "\n\033[31mLe due rette sono coincidenti!\033[0m";
+                            }
+                        } else if (isImpossibile) {
+                            cout << "\n\033[31mLe due rette sono parallele!\033[0m";
+                        } else {
+                            x1 = termineNotoDecimal / terminePrimoGradoDecimal;
+
+                            for (int i = MAX - 2; i >= 0; i--) {
+                                if (polinomio1[i] != 0) {
+                                    // i deve essere diverso da zero per evitare situzine 0^0
+                                    if (i != 0) 
+                                        y1 += pow(x1, i) * polinomio1[i];
+                                    else 
+                                        y1 += polinomio1[i];
+                                }
+                            }
+                            cout << "\n(" << "\033[1m" << x1 << ", " << y1 << "\033[0m" << ")" << "\n";
+                        }
+                    }
+                } else {
+                    cout << "\n\031[31mNon e' possibile trovare il punto di intersezione perché e' presente un polinomio di 3 grado!\033[0m";
+                }
+                cout << "\n\n\033[4mPremere qualsiasi tasto per continuare...\033[0m";
+                getch();
+                system("cls");
+                break;
             case '7':
             case '8': 
                 isRunning = false;
