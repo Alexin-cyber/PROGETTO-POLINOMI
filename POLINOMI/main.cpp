@@ -1,8 +1,9 @@
 #include <iostream>
-#include <cmath> // Per la funzione abs() e per la funzione pow()
+#include <cmath> // Per abs() e pow()
 #include <conio.h> // Per getch()
 #include "graphics2.h" // Per la funziona grafica
-#include <cstdlib> // per tolower()
+#include <cstdlib> // Per tolower()
+#include <windows.h> // Per ShowWindow();
 using namespace std;
 
 int main() {
@@ -23,11 +24,12 @@ int main() {
     bool isImpossibile, isIndeterminato;
 
     // Variabili utilizzati per trovare i punti di intersezione e per la risoluzione di un equazione di secondo grado
-    float deltaDecimal, numeratoreDecimal, denominatoreDecimal, x1, x2, y1, y2, aDecimal, bDecimal, cDecimal, termineNotoDecimal, terminePrimoGradoDecimal;
+    float deltaDecimal, x1, x2, y1, y2, aDecimal, bDecimal, cDecimal, termineNotoDecimal, terminePrimoGradoDecimal;
     
     // Punti prestabiliti per il grafico
-    int punti[12] = {1, 2, 3, 4, 5, 0, -1, -2, -3, -4, -5};
-    float verticeX, verticeY;
+    int punti[50];
+    int valori; // Per determinare il numero di punti che vuoi inserire nel grafica
+    float verticeX, verticeY; // Per contenere le coordinate del vertice della parabola
     
     // Variabili per la graphica
     int graphDriver = 0, graphMode = 0;
@@ -236,9 +238,9 @@ int main() {
         cout << "\033[36m|"<< "\033[1m                                 MENU PRINCIPALE                               " << "\033[1m|\033[0m\n";
         cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
         cout << "\033[36m" << "|  \033[32m[1]\033[0m" << " Acquisizione dei polinomi                                                " << "\033[36m|\n";
-        cout << "\033[36m" << "|  \033[32m[2]\033[0m" << " Somma di polinomi P1(x) + P2(x)                                          " << "\033[36m|\n";
-        cout << "\033[36m" << "|  \033[32m[3]\033[0m" << " Differenza di polinomi P1(x) - P2(x)                                     " << "\033[36m|\n";
-        cout << "\033[36m" << "|  \033[32m[4]\033[0m" << " Prodotto di polinomi P1(x) * P2(x)                                       " << "\033[36m|\n";
+        cout << "\033[36m" << "|  \033[32m[2]\033[0m" << " Somma di polinomi                                                        " << "\033[36m|\n";
+        cout << "\033[36m" << "|  \033[32m[3]\033[0m" << " Differenza di polinomi                                                   " << "\033[36m|\n";
+        cout << "\033[36m" << "|  \033[32m[4]\033[0m" << " Prodotto di polinomi                                                     " << "\033[36m|\n";
         cout << "\033[36m" << "|  \033[32m[5]\033[0m" << " Ricerca e visualizzazione degli zeri                                     " << "\033[36m|\n";
         cout << "\033[36m" << "|  \033[32m[6]\033[0m" << " Ricerca e visualizzazione dei punti di intersezione                      " << "\033[36m|\n";
         cout << "\033[36m" << "|  \033[32m[7]\033[0m" << " Rappresentazione grafica dei polinomi                                    " << "\033[36m|\n";
@@ -246,10 +248,10 @@ int main() {
         cout << "\033[36m" << "---------------------------------------------------------------------------------\033[0m\n\n";
 
         cout << "\033[1m Scegli un opzione \033[36m\n>>\033[0m ";
-        cin >> opzione;
+        opzione = getch();
 
         switch (opzione) {
-            case '1':
+            case '1': {
                 system("cls");
                 cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
                 cout << "\033[36m|"<< "\033[1m                           ACQUISIZIONE DEI POLINOMI                           " << "\033[1m|\033[0m\n";
@@ -429,7 +431,8 @@ int main() {
                 getch();
                 system("cls");
                 break;
-            case '2':
+       	 	}
+            case '2': {
                 system("cls");
                 cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
                 cout << "\033[36m|"<< "\033[1m                              SOMMA DI POLINOMI                                " << "\033[1m|\033[0m\n";
@@ -488,6 +491,11 @@ int main() {
 
                 cout << ") + (";
 
+				// assegna il segno (+, -) al primo numero del secondo polinomio
+                if (polinomio2[gradoMaxPolinomio2] != 0) {
+                    cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
+                }
+                
                 cout << "\033[1m";
                 for (int i = gradoMaxPolinomio2; i >= 0; i--) {
                     if (polinomio2[i] != 0) {
@@ -545,7 +553,8 @@ int main() {
                 getch();
                 system("cls");
                 break;
-            case '3':
+        	}
+            case '3': {
                 system("cls");
                 cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
                 cout << "\033[36m|"<< "\033[1m                           DIFFERENZA DI POLINOMI                              " << "\033[1m|\033[0m\n";
@@ -604,6 +613,11 @@ int main() {
 
                 isZero = true;
 
+				// assegna il segno (+, -) al primo numero del secondo polinomio
+                if (polinomio2[gradoMaxPolinomio2] != 0) {
+                    cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
+                }
+                
                 cout << "\033[1m";
                 for (int i = gradoMaxPolinomio2; i >= 0; i--) {
                     if (polinomio2[i] != 0) {
@@ -662,7 +676,8 @@ int main() {
                 getch();
                 system("cls");
                 break;
-            case '4':
+        	}
+            case '4': {
                 system("cls");
                 cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
                 cout << "\033[36m|"<< "\033[1m                            PRODOTTO DI POLINOMI                               " << "\033[1m|\033[0m\n";
@@ -741,6 +756,11 @@ int main() {
 
                 isZero = true;
 
+				// assegna il segno (+, -) al primo numero del secondo polinomio
+                if (polinomio2[gradoMaxPolinomio2] != 0) {
+                    cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
+                }
+                
                 cout << "\033[1m";
                 for (int i = gradoMaxPolinomio2; i >= 0; i--) {
                     if (polinomio2[i] != 0) {
@@ -800,7 +820,8 @@ int main() {
                 getch();
                 system("cls");
                 break;
-            case '5':
+            }
+            case '5': {
                 system("cls");
                 cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
                 cout << "\033[36m|"<< "\033[1m                     RICERCA E VISUALIZZAZIONE DEGLI ZERI                      " << "\033[1m|\033[0m\n";
@@ -908,7 +929,8 @@ int main() {
                 getch();
                 system("cls");
                 break;
-            case '6':
+            }
+            case '6': {
                 system("cls");
                 cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
                 cout << "\033[36m|"<< "\033[1m              RICERCA E VISUALIZZAZIONE DEI PUNTI DI INTERSEZIONE              " << "\033[1m|\033[0m\n";
@@ -922,7 +944,13 @@ int main() {
                 cout << "\033[32mQuesti sono i polinomi che sono stati inseriti dall'utente: \033[0m\n\n";
                 isZero = true;
 
-                cout << "y = ";
+                cout << "P(1) = ";
+                
+                // assegna il segno (+, -) al primo numero del primo polinomio
+                if (polinomio1[gradoMaxPolinomio1] != 0) {
+                    cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
+                }
+                
                 cout << "\033[1m";
                 for (int i = gradoMaxPolinomio1; i >= 0; i--) {
                     if (polinomio1[i] != 0) {
@@ -946,8 +974,13 @@ int main() {
 
                 isZero = true;
 
-                cout << "  y = ";
+                cout << "  P(2) = ";
 
+				// assegna il segno (+, -) al primo numero del primo polinomio
+                if (polinomio2[gradoMaxPolinomio2] != 0) {
+                    cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
+                }
+                
                 cout << "\033[1m";
                 for (int i = gradoMaxPolinomio2; i >= 0; i--) {
                     if (polinomio2[i] != 0) {
@@ -994,8 +1027,8 @@ int main() {
                                 }
                             }
 
-                            cout << "P(1)(x, y) = " << "(" << "\033[1m" << x1 << ", " << y1 << "\033[0m" << ")" << "\n";
-                            cout << "P(2)(x, y) = " << "(" << "\033[1m" << x2 << ", " << y2 << "\033[0m" << ")";
+                            cout << "1: (x, y) = " << "(" << "\033[1m" << x1 << ", " << y1 << "\033[0m" << ")" << "\n";
+                            cout << "2: (x, y) = " << "(" << "\033[1m" << x2 << ", " << y2 << "\033[0m" << ")";
 
                         } else if (deltaDecimal == 0) {
                             x1 = -bDecimal / (2 * aDecimal);
@@ -1010,7 +1043,7 @@ int main() {
                                 }
                             }
 
-                            cout << "P(1)(x, y) = " << "(" << "\033[1m" << x1 << ", " << y1 << "\033[0m" << ")" << "\n";
+                            cout << "1: (x, y) = " << "(" << "\033[1m" << x1 << ", " << y1 << "\033[0m" << ")" << "\n";
                         } else {
                             cout << "\033[31mI due polinomi non si intersecano in nessun punto!\033[0m";
                         }
@@ -1052,24 +1085,52 @@ int main() {
                                 }
                             }
 
-                            cout << "P(1)(x, y) = " << "(" << "\033[1m" << x1 << ", " << y1 << "\033[0m" << ")" << "\n";
+                            cout << "1: (x, y) = " << "(" << "\033[1m" << x1 << ", " << y1 << "\033[0m" << ")" << "\n";
                         }
                     }
                 } else {
-                    cout << "\031[31mNon e' possibile trovare il punto di intersezione perchÃ© e' presente un polinomio di 3 grado!\033[0m";
+                    cout << "\033[31mNon e' possibile trovare il punto di intersezione perche' e' presente un polinomio di 3 grado!\033[0m";
                 }
                 cout << "\n\n\033[4mPremere qualsiasi tasto per continuare...\033[0m";
                 getch();
                 system("cls");
                 break;
-            case '7':
-            	initgraph(&graphDriver, &graphMode, "", 640, 520);
-
-            	setcolor(WHITE);
-            	line(639 / 2, 0, 639 / 2, 519); // Asse delle ordinate
-            	line(0, 519 / 2, 639, 519 / 2); // Asse delle ascisse
-            	setcolor(RED);
+            }
+            case '7': {
+	        	system("cls");
+	            cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
+	            cout << "\033[36m|"<< "\033[1m                            RAPPRESENTAZIONE GRAFICA                           " << "\033[1m|\033[0m\n";
+	            cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n\n";
+	        
+            	index = 0;
             	
+            	cout << "\033[31m\033[1mSi consiglia di mettere piu' di 5 punti per una migliore rappresentazione dei polinomi.\033[0m\n\n";
+            	
+            	do {
+            		cout << "\033[1mQuanti punti vorresti generare? (Il massimo e' 25):      \033[0m";
+            		cin >> valori;
+            		
+            		if (valori > 25)
+            			cout << "\033[31mIl numero di punti deve essere inferiore o uguale a 25. Riprova!\033[0m\n";
+				} while (valori > 25);
+            	
+            	// punti che vanno da -n a n
+            	for (int i = -valori; i <= valori; i++) {
+            		punti[index] = i;
+            		index++;
+				}
+            	
+            	initgraph(&graphDriver, &graphMode, "", 860, 760);
+
+            	setcolor(WHITE); // imposta il colore degli assi a bianco
+            	line(859 / 2, 0, 859 / 2, 759); // Asse delle ordinate
+            	line(0, 759 / 2, 859, 759 / 2); // Asse delle ascisse
+            	
+            	setcolor(RED); // imposta il colore del primo polinomio a rosso
+            	
+            	// Rappresentazione grafica del primo polinomio
+            	
+            	// Trova il vertice della parabola
             	if (polinomio1[MAX - 2] != 0) {
             		aDecimal = polinomio1[MAX - 2], bDecimal = polinomio1[MAX - 3], cDecimal = polinomio1[MAX - 4];
             		
@@ -1077,28 +1138,62 @@ int main() {
             		verticeX = -bDecimal / (2 * aDecimal);
             		verticeY = -deltaDecimal / (4 * aDecimal);
             		
-            		circle(639 / 2 + verticeX * 24, 519 / 2 + verticeY * 24, 5);
+            		circle(859 / 2 + verticeX * 10, 759 / 2 + verticeY * 10 * - 1, 5);
 				}
             	
-            	for (int i = 0; i < 12; i++) {
+            	// Inserisci i punti all'interno del grafico
+            	for (int i = 0; i < index; i++) {
             		y1 = 0;
             		for (int j = gradoMaxPolinomio1; j >= 0; j--) {
             			if (polinomio1[j] != 0) {
                             // i deve essere diverso da zero per evitare situzine 0^0
                             if (j != 0) 
-                                y1 += pow(punti[i], j) * polinomio1[j] * - 1;
+                                y1 += pow(punti[i], j) * polinomio1[j];
                             else 
-                                y1 += polinomio1[j] * - 1;
+                                y1 += polinomio1[j];
                         }
+                        
 					}
-
-					circle(639 / 2 + punti[i] * 24, 519 / 2 + y1 * 24, 5);
+					circle(859 / 2 + punti[i] * 10, 759 / 2 + y1 * 10 * - 1, 5);
+				}
+				
+				setcolor(YELLOW); // imposta il colore del secondo polinomio a giallo
+				
+				// Rappresentazione grafica del secondo polinomio
+				
+				// Trova il vertice della parabola
+				if (polinomio2[MAX - 2] != 0) {
+            		aDecimal = polinomio2[MAX - 2], bDecimal = polinomio2[MAX - 3], cDecimal = polinomio2[MAX - 4];
+            		
+            		deltaDecimal = pow(bDecimal, 2) - 4 * aDecimal * cDecimal;
+            		verticeX = -bDecimal / (2 * aDecimal);
+            		verticeY = -deltaDecimal / (4 * aDecimal);
+            		
+            		circle(859 / 2 + verticeX * 10, 759 / 2 + verticeY * 10 * - 1, 5);
+				}
+            	
+            	// Inserisci i punti all'interno del grafico
+            	for (int i = 0; i < index; i++) {
+            		y1 = 0;
+            		for (int j = gradoMaxPolinomio2; j >= 0; j--) {
+            			if (polinomio2[j] != 0) {
+                            // i deve essere diverso da zero per evitare situzine 0^0
+                            if (j != 0) 
+                                y1 += pow(punti[i], j) * polinomio2[j];
+                            else 
+                                y1 += polinomio2[j];
+                        }
+                        
+					}
+					circle(859 / 2 + punti[i] * 10, 759 / 2 + y1 * 10 * - 1, 5);
 				}
             	
             	getchg();
             	closegraph();
+            	system("cls");
             	break;
-            case '8': 
+        	}
+            case '8': {
             	system("cls");
             	cout << "Sei sicuro di voler uscire? (\033[32my\033[0m, \033[31mN\033[0m);\n";
             	cin >> userExit;
@@ -1110,12 +1205,16 @@ int main() {
 	                cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n\n";
 	                
 	                isRunning = false;
+				} else {
+					system("cls");
 				}
-				system("cls");
                 break;
-            default:
+        	}
+            default: {
+            	system("cls");
                 cout << "\033[31mL'opzione inserita non e' disponibile. Riprovare per favore!\033[0m\n";
                 break;
+        	}
         }
     }
     return 0;
