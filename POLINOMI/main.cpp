@@ -25,6 +25,10 @@ int main() {
     // Variabili utilizzati per trovare i punti di intersezione e per la risoluzione di un equazione di secondo grado
     float deltaDecimal, numeratoreDecimal, denominatoreDecimal, x1, x2, y1, y2, aDecimal, bDecimal, cDecimal, termineNotoDecimal, terminePrimoGradoDecimal;
     
+    // Punti prestabiliti per il grafico
+    int punti[12] = {1, 2, 3, 4, 5, 0, -1, -2, -3, -4, -5};
+    float verticeX, verticeY;
+    
     // Variabili per la graphica
     int graphDriver = 0, graphMode = 0;
 
@@ -1060,12 +1064,36 @@ int main() {
                 break;
             case '7':
             	initgraph(&graphDriver, &graphMode, "", 640, 520);
-            	
+
             	setcolor(WHITE);
             	line(639 / 2, 0, 639 / 2, 519); // Asse delle ordinate
             	line(0, 519 / 2, 639, 519 / 2); // Asse delle ascisse
+            	setcolor(RED);
             	
+            	if (polinomio1[MAX - 2] != 0) {
+            		aDecimal = polinomio1[MAX - 2], bDecimal = polinomio1[MAX - 3], cDecimal = polinomio1[MAX - 4];
+            		
+            		deltaDecimal = pow(bDecimal, 2) - 4 * aDecimal * cDecimal;
+            		verticeX = -bDecimal / (2 * aDecimal);
+            		verticeY = -deltaDecimal / (4 * aDecimal);
+            		
+            		circle(639 / 2 + verticeX * 24, 519 / 2 + verticeY * 24, 5);
+				}
             	
+            	for (int i = 0; i < 12; i++) {
+            		y1 = 0;
+            		for (int j = gradoMaxPolinomio1; j >= 0; j--) {
+            			if (polinomio1[j] != 0) {
+                            // i deve essere diverso da zero per evitare situzine 0^0
+                            if (j != 0) 
+                                y1 += pow(punti[i], j) * polinomio1[j] * - 1;
+                            else 
+                                y1 += polinomio1[j] * - 1;
+                        }
+					}
+
+					circle(639 / 2 + punti[i] * 24, 519 / 2 + y1 * 24, 5);
+				}
             	
             	getchg();
             	closegraph();
@@ -1076,11 +1104,12 @@ int main() {
             	cin >> userExit;
             	
             	if (tolower(userExit) != 'n') {
-            		isRunning = false;
             		system("cls");
 	                cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
 	                cout << "\033[36m|"<< "\033[1m                GRAZIE PER AVER PROVATO IL NOSTRO PROGRAMMA!                   " << "\033[1m|\033[0m\n";
 	                cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n\n";
+	                
+	                isRunning = false;
 				}
 				system("cls");
                 break;
