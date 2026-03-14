@@ -7,6 +7,19 @@
 #include <string>
 using namespace std;
 
+/*
+    Questo progetto e' stato fatto principalamente per la risoluzione dei polinomi cha hanno un grado compreso tra 0 e 3.
+
+    Questo programma permette di: 
+    0. Inserire i due polinomi
+    1. Sommare due polinomi;
+    2. Sottrare due polinomi;
+    3. Moltiplicare due polinomi;
+    4. Cercare gli zeri dei due polinomi;
+    5. Cercare il loro punto di intersezione;
+    6. Rappresentarli graficamente;
+*/
+
 int main() {
     // Costanti per stabilire il range massimo dei polinomi
     const int MAX = 4, MAX2 = 16;
