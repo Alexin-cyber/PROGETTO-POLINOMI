@@ -4,7 +4,7 @@
 #include "graphics2.h" // Per la funziona grafica
 #include <cstdlib> // Per tolower()
 #include <windows.h> // Per ShowWindow();
-#include <string>
+#include <string> // Per to_string()
 using namespace std;
 
 /*
@@ -12,51 +12,53 @@ using namespace std;
 
     Questo programma permette di: 
     0. Inserire i due polinomi
-    1. Sommare due polinomi;
-    2. Sottrare due polinomi;
-    3. Moltiplicare due polinomi;
-    4. Cercare gli zeri dei due polinomi;
+    1. Sommare due polinomi: P(1) + P(2);
+    2. Sottrare due polinomi: P(1) - P(2);
+    3. Moltiplicare due polinomi: P(1) * P(2);
+    4. Cercare gli zeri dei due polinomi: P(x) = 0;
     5. Cercare il loro punto di intersezione;
     6. Rappresentarli graficamente;
+
 */
 
 int main() {
-    // Costanti per stabilire il range massimo dei polinomi
-    const int MAX = 4, MAX2 = 16;
+    // Costanti per stabilire il range massimo degli array
+    const int MAX = 4, MAX2 = 16, MAX3 = 7;
     
-    // Costanti per la grandezza della finstra
-    const int WIDTH = 759, HEIGHT = 659;
+    // Costanti per la dimensione della finestra della grafica
+    const int WIDTH = 667, HEIGHT = 667;
     
-    // Variabili utilizzati per stabilire i gradi massimi dei vari polinomi
+    // Variabili per stabilire i gradi massimi dei vari polinomi
     int gradoMaxPolinomio1, gradoMaxPolinomio2, gradoMax, index;
 
-    // Array che contengono i valori dei due polinomi
+    // Array che contengono i valori dei due polinomi inseriti dall'utente
     int polinomio1[MAX]{0}, polinomio2[MAX]{0};
 
-    // Array che contengono i valori delle operazioni tra il primo e il secondo polinomio
-    int polinomioSomma[MAX]{0}, polinomioDifferenza[MAX]{0}, gradoPolinomio[MAX2]{0}, polinomioProdotto[MAX2]{0}, polinomioProdottoSomma[MAX2]{0};
+    // Array che contengono i valori delle operazioni
+    int polinomioSomma[MAX]{0}, polinomioDifferenza[MAX]{0}, gradoPolinomio[MAX2]{0}, polinomioProdotto[MAX3]{0}, polinomioProdottoSomma[MAX2]{0};
 
-    // Variabili utilizzati per la risoluzione di un'equazione di primo grado
+    // Variabili per la risoluzione di un'equazione di primo grado
     int termineNoto, terminePrimoGrado;
     bool isImpossibile, isIndeterminato;
 
-    // Variabili utilizzati per trovare i punti di intersezione e per la risoluzione di un equazione di secondo grado
-    float deltaDecimal, x1, x2, y1, y2, aDecimal, bDecimal, cDecimal, termineNotoDecimal, terminePrimoGradoDecimal;
+    // Variabili per trovare i punti di intersezione e per la risoluzione di un equazione di secondo grado
+    double deltaDecimal, x1, x2, y1, y2, yGrafica, aDecimal, bDecimal, cDecimal, termineNotoDecimal, terminePrimoGradoDecimal;
     
-    // Punti prestabiliti per il grafico
-    float punti[4096];
-    int valori; // Per determinare il numero di punti che vuoi inserire nel grafica
+    // Variabili che contegono i punti che servono per rappresentare i polinomi
+    double punti[150];
     
-    // Variabili per la graphica
+    // Variabili per la creazione della finestra per la grafica
     int graphDriver = 0, graphMode = 0;
 
-	// Stringhe utilizzate per la visualizzazione dei polinomi nella finestra del grafico
+	// Stringhe utilizzate per la visualizzazione di testo nella grafica
 	string pol1, pol2;
 
-    char opzione, userExit, opzioneGrafica;
-    bool isFirstTime = true, isRunning = true, isZero, isFailed;
+    // Variabili per la gestione degli errori e del corretto funzionamento del programma
+    char opzione, userExit, userChoice;
+    bool isFirstTime = true, isRunning = true, isFailed;
 
-    cout.precision(3); // Stabili 3 numeri significativi in caso dei numeri decimali
+    // Considera solo 3 numeri significati per (double)
+    cout.precision(3); 
 
     cout << "\033[36m  _____   ____  _      _____ _   _  ____  __  __ _____\n";
     cout << " |  __ \\ / __ \\| |    |_   _| \\ | |/ __ \\|  \\/  |_   _|\n";
@@ -109,8 +111,8 @@ int main() {
                         cin >> polinomio1[i];
 
                         if (cin.fail()) {
-                            cin.clear(); // Elimina l'errore
-                            cin.ignore(1000, '\n'); // Consuma tutti i caratteri nel buffer fino a \n
+                            cin.clear();
+                            cin.ignore(1000, '\n');
                             isFailed = true;
 
                             cout << "\033[31mAttenzione! Il programma non accetta caratteri o altro, ma solo NUMERI! Riprova!\033[0m\n";
@@ -123,8 +125,8 @@ int main() {
                         cin >> polinomio1[i];
 
                         if (cin.fail()) {
-                            cin.clear(); // Elimina l'errore
-                            cin.ignore(1000, '\n'); // Consuma tutti i caratteri nel buffer fino a \n
+                            cin.clear();
+                            cin.ignore(1000, '\n');
                             isFailed = true;
 
                             cout << "\033[31mAttenzione! Il programma non accetta caratteri o altro, ma solo NUMERI! Riprova!\033[0m\n";
@@ -136,43 +138,39 @@ int main() {
             // Gestione output del primo polinomio
             cout << "\n\n\033[32mP(1): \033[0m";
             
-            // assegna il segno (+, -) al primo numero del primo polinomio
-            if (polinomio1[gradoMaxPolinomio1] != 0) {
-                cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
-            }
-            
-            cout << "\033[1m";
-            for (int i = gradoMaxPolinomio1; i >= 0; i--) {
-                if (polinomio1[i] != 0) {
-                    isZero = false;
-                    if (i != 0) {
-                        cout << abs(polinomio1[i]) << "x^" << i << " ";
-                    } else {
-                        cout << abs(polinomio1[i]);
-                    }
+            if (polinomio1[MAX - 1] == 0 && polinomio1[MAX - 2] == 0 && polinomio1[MAX - 3] == 0 && polinomio1[MAX - 4] == 0) {
+                cout << "\033[1m" << 0 << "\033[0m\n";
+            } else {
+                // assegna il segno (+, -) al primo numero del primo polinomio
+                if (polinomio1[gradoMaxPolinomio1] != 0) {
+                    cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
                 }
                 
-                if (i != 0 && polinomio1[i - 1] != 0) {
-                    cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                cout << "\033[1m";
+                for (int i = gradoMaxPolinomio1; i >= 0; i--) {
+                    if (polinomio1[i] != 0) {
+                        if (i != 0) {
+                            cout << abs(polinomio1[i]) << "x^" << i << " ";
+                        } else {
+                            cout << abs(polinomio1[i]);
+                        }
+                    }
+                    
+                    if (i != 0 && polinomio1[i - 1] != 0) {
+                        cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                    }
                 }
-            }
-            cout << "\033[0m";
-            
-            if (isZero) {
-                cout << "\033[1m" << 0 << "\033[0m";
+                cout << "\033[0m\n";
             }
 
-
-            cout << "\n";
             do {
                 isFailed = false;
                 cout << "\n\033[3mInserisci il grado massimo del secondo polinomio:       \033[0m";
                 cin >> gradoMaxPolinomio2;
                 
-                // Controllo in caso l'utente metta un valore diverso da un numero
                 if (cin.fail()) {
-                    cin.clear(); // Elimina l'errore
-                    cin.ignore(1000, '\n'); // Consuma tutti i caratteri nel buffer fino a \n
+                    cin.clear();
+                    cin.ignore(1000, '\n');
                     isFailed = true;
 
                     cout << "\033[31mAttenzione! Il programma non accetta caratteri o altro, ma solo NUMERI! Riprova!\033[0m\n";
@@ -181,8 +179,6 @@ int main() {
                 }
                     
             } while (gradoMaxPolinomio2 > 3 || gradoMaxPolinomio2 < 0 || isFailed);
-
-            isZero = true;
             
             // Gestione input del secondo polinomio
             for (int i = gradoMaxPolinomio2; i >= 0; i--) {
@@ -192,10 +188,9 @@ int main() {
                         cout << "\n\033[3mInserisci il coefficiente di grado x^" << i << ":       \033[0m";
                         cin >> polinomio2[i];
 
-                        // Controllo in caso l'utente metta un valore diverso da un numero
                         if (cin.fail()) {
-                            cin.clear(); // Elimina l'errore
-                            cin.ignore(1000, '\n'); // Consuma tutti i caratteri nel buffer fino a \n
+                            cin.clear();
+                            cin.ignore(1000, '\n');
                             isFailed = true;
 
                             cout << "\033[31mAttenzione! Il programma non accetta caratteri o altro, ma solo NUMERI! Riprova!\033[0m\n";
@@ -207,10 +202,9 @@ int main() {
                         cout << "\n\033[3mInserisci il termine noto:       \033[0m";
                         cin >> polinomio2[i];
 
-                        // Controllo in caso l'utente metta un valore diverso da un numero
                         if (cin.fail()) {
-                            cin.clear(); // Elimina l'errore
-                            cin.ignore(1000, '\n'); // Consuma tutti i caratteri nel buffer fino a \n
+                            cin.clear();
+                            cin.ignore(1000, '\n');
                             isFailed = true;
 
                             cout << "\033[31mAttenzione! Il programma non accetta caratteri o altro, ma solo NUMERI! Riprova!\033[0m\n";
@@ -222,31 +216,31 @@ int main() {
             // Gestione output del primo polinomio
             cout << "\n\n\033[32mP(2): \033[0m";
         
-            // assegna il segno (+, -) al primo numero del secondo polinomio
-            if (polinomio2[gradoMaxPolinomio2] != 0) {
-                cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
-            }
-            
-            cout << "\033[1m";
-            for (int i = gradoMaxPolinomio2; i >= 0; i--) {
-                if (polinomio2[i] != 0) {
-                    isZero = false;
-                    if (i != 0) {
-                        cout << abs(polinomio2[i]) << "x^" << i << " ";
-                    } else {
-                        cout << abs(polinomio2[i]);
-                    }
+            if (polinomio2[MAX - 1] == 0 && polinomio2[MAX - 2] == 0 && polinomio2[MAX - 3] == 0 && polinomio2[MAX - 4] == 0) {
+                cout << "\033[1m" << 0 << "\033[0m";
+            } else {
+                // assegna il segno (+, -) al primo numero del secondo polinomio
+                if (polinomio2[gradoMaxPolinomio2] != 0) {
+                    cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
                 }
                 
-                if (i != 0 && polinomio2[i - 1] != 0) {
-                    cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                cout << "\033[1m";
+                for (int i = gradoMaxPolinomio2; i >= 0; i--) {
+                    if (polinomio2[i] != 0) {
+                        if (i != 0) {
+                            cout << abs(polinomio2[i]) << "x^" << i << " ";
+                        } else {
+                            cout << abs(polinomio2[i]);
+                        }
+                    }
+                    
+                    if (i != 0 && polinomio2[i - 1] != 0) {
+                        cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                    }
                 }
+                cout << "\033[0m";
             }
-            cout << "\033[0m";
-            
-            if (isZero)
-                cout << "\033[1m" << 0 << "\033[0m";
-            
+
             cout << "\n\n\033[4mPremere qualsiasi tasto per continuare...\033[0m";
 	        getch();
 	        system("cls");
@@ -257,10 +251,10 @@ int main() {
         cout << "\033[36m|"<< "\033[1m                                 MENU PRINCIPALE                               " << "\033[1m|\033[0m\n";
         cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n";
         cout << "\033[36m" << "|  \033[32m[1]\033[0m" << " Acquisizione dei polinomi                                                " << "\033[36m|\n";
-        cout << "\033[36m" << "|  \033[32m[2]\033[0m" << " Somma di polinomi                                                        " << "\033[36m|\n";
-        cout << "\033[36m" << "|  \033[32m[3]\033[0m" << " Differenza di polinomi                                                   " << "\033[36m|\n";
-        cout << "\033[36m" << "|  \033[32m[4]\033[0m" << " Prodotto di polinomi                                                     " << "\033[36m|\n";
-        cout << "\033[36m" << "|  \033[32m[5]\033[0m" << " Ricerca e visualizzazione degli zeri                                     " << "\033[36m|\n";
+        cout << "\033[36m" << "|  \033[32m[2]\033[0m" << " Somma di polinomi -> P(1) + P(2)                                         " << "\033[36m|\n";
+        cout << "\033[36m" << "|  \033[32m[3]\033[0m" << " Differenza di polinomi -> P(1) - P(2)                                    " << "\033[36m|\n";
+        cout << "\033[36m" << "|  \033[32m[4]\033[0m" << " Prodotto di polinomi -> P(1) * P(2)                                      " << "\033[36m|\n";
+        cout << "\033[36m" << "|  \033[32m[5]\033[0m" << " Ricerca e visualizzazione degli zeri -> P(x) = 0                         " << "\033[36m|\n";
         cout << "\033[36m" << "|  \033[32m[6]\033[0m" << " Ricerca e visualizzazione dei punti di intersezione                      " << "\033[36m|\n";
         cout << "\033[36m" << "|  \033[32m[7]\033[0m" << " Rappresentazione grafica dei polinomi                                    " << "\033[36m|\n";
         cout << "\033[36m" << "|  \033[32m[8]\033[0m" << " Esci dal programma                                                       " << "\033[36m|\n";
@@ -282,16 +276,14 @@ int main() {
                     polinomio2[i] = 0;
                 }
 
-                // Controllo input del grado massimo del primo polinomio
                 do {
                     isFailed = false;
                     cout << "\033[3mInserisci il grado massimo del primo polinomio:       \033[0m";
                     cin >> gradoMaxPolinomio1;
 
-                    // Controllo in caso l'utente metta un valore diverso da un numero
                     if (cin.fail()) {
-                        cin.clear(); // Elimina l'errore
-                        cin.ignore(1000, '\n'); // Consuma tutti i caratteri nel buffer fino a \n
+                        cin.clear();
+                        cin.ignore(1000, '\n');
                         isFailed = true;
 
                         cout << "\033[31mAttenzione! Il programma non accetta caratteri o altro, ma solo NUMERI! Riprova!\033[0m\n";
@@ -300,7 +292,6 @@ int main() {
                     }
                 } while (gradoMaxPolinomio1 > 3 || gradoMaxPolinomio1 < 0 || isFailed);
 
-                // Gestione input del primo polinomio
                 for (int i = gradoMaxPolinomio1; i >= 0; i--) {
                     if (i > 0) {
                         do {
@@ -309,8 +300,8 @@ int main() {
                             cin >> polinomio1[i];
 
                             if (cin.fail()) {
-                                cin.clear(); // Elimina l'errore
-                                cin.ignore(1000, '\n'); // Consuma tutti i caratteri nel buffer fino a \n
+                                cin.clear();
+                                cin.ignore(1000, '\n');
                                 isFailed = true;
 
                                 cout << "\033[31mAttenzione! Il programma non accetta caratteri o altro, ma solo NUMERI! Riprova!\033[0m\n";
@@ -323,8 +314,8 @@ int main() {
                             cin >> polinomio1[i];
 
                             if (cin.fail()) {
-                                cin.clear(); // Elimina l'errore
-                                cin.ignore(1000, '\n'); // Consuma tutti i caratteri nel buffer fino a \n
+                                cin.clear();
+                                cin.ignore(1000, '\n');
                                 isFailed = true;
 
                                 cout << "\033[31mAttenzione! Il programma non accetta caratteri o altro, ma solo NUMERI! Riprova!\033[0m\n";
@@ -332,47 +323,42 @@ int main() {
                         } while (isFailed);
                     }
                 }
-                isZero = true;
 
-                // Gestione output del primo polinomio
                 cout << "\n\n\033[32mP(1): \033[0m";
                 
-                // assegna il segno (+, -) al primo numero del primo polinomio
-                if (polinomio1[gradoMaxPolinomio1] != 0) {
-                    cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio1; i >= 0; i--) {
-                    if (polinomio1[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio1[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio1[i]);
-                        }
+                if (polinomio1[MAX - 1] == 0 && polinomio1[MAX - 2] == 0 && polinomio1[MAX - 3] == 0 && polinomio1[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m\n";
+                } else {
+
+                    if (polinomio1[gradoMaxPolinomio1] != 0) {
+                        cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio1[i - 1] != 0) {
-                        cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio1; i >= 0; i--) {
+                        if (polinomio1[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio1[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio1[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio1[i - 1] != 0) {
+                            cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
-                }
-                cout << "\033[0m";
-                
-                if (isZero) {
-                    cout << "\033[1m" << 0 << "\033[0m";
+                    cout << "\033[0m\n";
                 }
 
-                cout << "\n";
                 do {
                     isFailed = false;
                     cout << "\n\033[3mInserisci il grado massimo del secondo polinomio:       \033[0m";
                     cin >> gradoMaxPolinomio2;
                     
-                    // Controllo in caso l'utente metta un valore diverso da un numero
                     if (cin.fail()) {
-                        cin.clear(); // Elimina l'errore
-                        cin.ignore(1000, '\n'); // Consuma tutti i caratteri nel buffer fino a \n
+                        cin.clear();
+                        cin.ignore(1000, '\n');
                         isFailed = true;
 
                         cout << "\033[31mAttenzione! Il programma non accetta caratteri o altro, ma solo NUMERI! Riprova!\033[0m\n";
@@ -382,7 +368,6 @@ int main() {
                         
                 } while (gradoMaxPolinomio2 > 3 || gradoMaxPolinomio2 < 0 || isFailed);
             
-                // Gestione input del secondo polinomio
                 for (int i = gradoMaxPolinomio2; i >= 0; i--) {
                     if (i > 0) {
                         do {
@@ -390,10 +375,9 @@ int main() {
                             cout << "\n\033[3mInserisci il coefficiente di grado x^" << i << ":       \033[0m";
                             cin >> polinomio2[i];
 
-                            // Controllo in caso l'utente metta un valore diverso da un numero
                             if (cin.fail()) {
-                                cin.clear(); // Elimina l'errore
-                                cin.ignore(1000, '\n'); // Consuma tutti i caratteri nel buffer fino a \n
+                                cin.clear();
+                                cin.ignore(1000, '\n');
                                 isFailed = true;
 
                                 cout << "\033[31mAttenzione! Il programma non accetta caratteri o altro, ma solo NUMERI! Riprova!\033[0m\n";
@@ -405,10 +389,9 @@ int main() {
                             cout << "\n\033[3mInserisci il termine noto:       \033[0m";
                             cin >> polinomio2[i];
 
-                            // Controllo in caso l'utente metta un valore diverso da un numero
                             if (cin.fail()) {
-                                cin.clear(); // Elimina l'errore
-                                cin.ignore(1000, '\n'); // Consuma tutti i caratteri nel buffer fino a \n
+                                cin.clear();
+                                cin.ignore(1000, '\n');
                                 isFailed = true;
 
                                 cout << "\033[31mAttenzione! Il programma non accetta caratteri o altro, ma solo NUMERI! Riprova!\033[0m\n";
@@ -416,36 +399,33 @@ int main() {
                         } while (isFailed);
                     }
                 }
-                isZero = true;
-                // Gestione output del secondo polinomio
+
                 cout << "\n\n\033[32mP(2): \033[0m";
                 
-                // assegna il segno (+, -) al secondo numero del secondo polinomio
-                if (polinomio2[gradoMaxPolinomio2] != 0) {
-                    cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio2; i >= 0; i--) {
-                    if (polinomio2[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio2[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio2[i]);
-                        }
+                if (polinomio2[MAX - 1] == 0 && polinomio2[MAX - 2] == 0 && polinomio2[MAX - 3] == 0 && polinomio2[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio2[gradoMaxPolinomio2] != 0) {
+                        cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio2[i - 1] != 0) {
-                        cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio2; i >= 0; i--) {
+                        if (polinomio2[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio2[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio2[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio2[i - 1] != 0) {
+                            cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
+                    cout << "\033[0m";
                 }
-                cout << "\033[0m";
-                
-                if (isZero)
-                    cout << "\033[1m" << 0 << "\033[0m";
-
-                cout << "\033[0m";
+ 
                 cout << "\n\n\033[4mPremere qualsiasi tasto per continuare...\033[0m";
                 getch();
                 system("cls");
@@ -457,7 +437,6 @@ int main() {
                 cout << "\033[36m|"<< "\033[1m                              SOMMA DI POLINOMI                                " << "\033[1m|\033[0m\n";
                 cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n\n";
 
-                // Riassegnamento dei valori di defualt
                 for (int i = 0; i < MAX; i++) {
                     polinomioSomma[i] = 0;
                 }
@@ -476,97 +455,84 @@ int main() {
 
                 // Gestione output del polinomio somma
                 cout << "\033[32mLa somma tra i due polinomi equivale a: \033[0m\n\n";
-                isZero = true;
 
                 cout << "(";
 
-                // assegna il segno (+, -) al primo numero del primo polinomio
-                if (polinomio1[gradoMaxPolinomio1] != 0) {
-                    cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio1; i >= 0; i--) {
-                    if (polinomio1[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio1[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio1[i]);
-                        }
+                if (polinomio1[MAX - 1] == 0 && polinomio1[MAX - 2] == 0 && polinomio1[MAX - 3] == 0 && polinomio1[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio1[gradoMaxPolinomio1] != 0) {
+                        cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio1[i - 1] != 0) {
-                        cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio1; i >= 0; i--) {
+                        if (polinomio1[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio1[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio1[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio1[i - 1] != 0) {
+                            cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
+                    cout << "\033[0m";
                 }
-                cout << "\033[0m";
-                
-                if (isZero) {
-                    cout << "\033[1m" << 0 << "\033[0m";
-                }
-
-                isZero = true;
 
                 cout << ") + (";
 
-				// assegna il segno (+, -) al primo numero del secondo polinomio
-                if (polinomio2[gradoMaxPolinomio2] != 0) {
-                    cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio2; i >= 0; i--) {
-                    if (polinomio2[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio2[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio2[i]);
-                        }
+				if (polinomio2[MAX - 1] == 0 && polinomio2[MAX - 2] == 0 && polinomio2[MAX - 3] == 0 && polinomio2[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio2[gradoMaxPolinomio2] != 0) {
+                        cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio2[i - 1] != 0) {
-                        cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio2; i >= 0; i--) {
+                        if (polinomio2[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio2[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio2[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio2[i - 1] != 0) {
+                            cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
+                    cout << "\033[0m";
                 }
-                cout << "\033[0m";
-                
-                if (isZero)
-                    cout << "\033[1m" << 0 << "\033[0m";
 
                 cout << ") = ";
-				
-                isZero = true;
 
-                // assegna il segno (+, -) al primo numero del polinomio somma
-                if (polinomioSomma[gradoMax] != 0) {
-                    if (polinomioSomma[gradoMax] > 0) {
-                        cout << "+";
-                    } else  {
-                        cout << "-";
-                    }   
-                }
+                if (polinomioSomma[MAX - 1] == 0 && polinomioSomma[MAX - 2] == 0 && polinomioSomma[MAX - 3] == 0 && polinomioSomma[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomioSomma[gradoMax] != 0) {
+                        cout << (polinomioSomma[gradoMax] > 0 ? "+" : "-");
+                    }
 
-                cout << "\033[1m";
-                for (int i = gradoMax; i >= 0; i--) {
-                    if (polinomioSomma[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomioSomma[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomioSomma[i]);
+                    cout << "\033[1m";
+                    for (int i = gradoMax; i >= 0; i--) {
+                        if (polinomioSomma[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomioSomma[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomioSomma[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomioSomma[i - 1] != 0) {
+                            cout << (polinomioSomma[i - 1] > 0 ? "+ " : "- ");
                         }
                     }
-                    
-                    if (i != 0 && polinomioSomma[i - 1] != 0) {
-                        cout << (polinomioSomma[i - 1] > 0 ? "+ " : "- ");
-                    }
+                    cout << "\033[0m";
                 }
-	            cout << "\033[0m";
-	        	
-                if (isZero)
-                    cout << "\033[1m" << 0 << "\033[0m";
 				
                 cout << "\n\n\033[4mPremere qualsiasi tasto per continuare...\033[0m";
                 getch();
@@ -579,7 +545,6 @@ int main() {
                 cout << "\033[36m|"<< "\033[1m                           DIFFERENZA DI POLINOMI                              " << "\033[1m|\033[0m\n";
                 cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n\n";
 
-                // Riassegnamento dei valori di defualt
                 for (int i = 0; i < MAX; i++) {
                     polinomioDifferenza[i] = 0;
                 }
@@ -589,7 +554,6 @@ int main() {
                     polinomioDifferenza[i] = polinomio1[i] - polinomio2[i];
                 }
                 
-                // individuazione del grado massimo tra i due polinomi
                 if (gradoMaxPolinomio1 > gradoMaxPolinomio2) {
                     gradoMax = gradoMaxPolinomio1;
                 } else {
@@ -598,99 +562,85 @@ int main() {
 
                 // Gestione output del polinomio differenza
                 cout << "\033[32mLa differenza tra i due polinomi equivale a: \033[0m\n\n";
-                isZero = true;
 
                 cout << "(";
 
-                // assegna il segno (+, -) al primo numero del primo polinomio
-                if (polinomio1[gradoMaxPolinomio1] != 0) {
-                    cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio1; i >= 0; i--) {
-                    if (polinomio1[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio1[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio1[i]);
-                        }
+                if (polinomio1[MAX - 1] == 0 && polinomio1[MAX - 2] == 0 && polinomio1[MAX - 3] == 0 && polinomio1[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio1[gradoMaxPolinomio1] != 0) {
+                        cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio1[i - 1] != 0) {
-                        cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio1; i >= 0; i--) {
+                        if (polinomio1[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio1[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio1[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio1[i - 1] != 0) {
+                            cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
-                }
-                cout << "\033[0m";
-                
-                if (isZero) {
-                    cout << "\033[1m" << 0 << "\033[0m";
+                    cout << "\033[0m";
                 }
 
                 cout << ") - (";
 
-                isZero = true;
-
-				// assegna il segno (+, -) al primo numero del secondo polinomio
-                if (polinomio2[gradoMaxPolinomio2] != 0) {
-                    cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio2; i >= 0; i--) {
-                    if (polinomio2[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio2[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio2[i]);
-                        }
+				if (polinomio2[MAX - 1] == 0 && polinomio2[MAX - 2] == 0 && polinomio2[MAX - 3] == 0 && polinomio2[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio2[gradoMaxPolinomio2] != 0) {
+                        cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio2[i - 1] != 0) {
-                        cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio2; i >= 0; i--) {
+                        if (polinomio2[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio2[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio2[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio2[i - 1] != 0) {
+                            cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
+                    cout << "\033[0m";
                 }
-                cout << "\033[0m";
-                
-                if (isZero)
-                    cout << "\033[1m" << 0 << "\033[0m";
 
                 cout << ") = ";
 
-	                // assegna il segno (+, -) al primo numero del polinomio differenza
-	                if (polinomioDifferenza[gradoMax] != 0) {
-	                    if (polinomioDifferenza[gradoMax] > 0) {
-	                        cout << "+";
-	                    } else  {
-	                        cout << "-";
-	                    }   
-	                }
-
-                    isZero = true;
-	
-	                cout << "\033[1m";
-	                for (int i = gradoMax; i >= 0; i--) {
-	                    if (polinomioDifferenza[i] != 0) {
-                            isZero = false;
-	                        if (i != 0) {
-	                            cout << abs(polinomioDifferenza[i]) << "x^" << i << " ";
-	                        } else {
-	                            cout << abs(polinomioDifferenza[i]);
-	                        }
-	                    }
-	                    
-	                    if (i != 0 && polinomioDifferenza[i - 1] != 0) {
-	                        cout << (polinomioDifferenza[i - 1] > 0 ? "+ " : "- ");
-	                    }
-	                }
-	                cout << "\033[0m";
-
-                    if (isZero) {
-                        cout << "\033[1m" << 0 << "\033[0m";
+                if (polinomioDifferenza[MAX - 1] == 0 && polinomioDifferenza[MAX - 2] == 0 && polinomioDifferenza[MAX - 3] == 0 && polinomioDifferenza[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomioDifferenza[gradoMax] != 0) {
+                        cout << (polinomioDifferenza[gradoMax] > 0 ? "+" : "-");
                     }
-	        		
+
+                    cout << "\033[1m";
+                    for (int i = gradoMax; i >= 0; i--) {
+                        if (polinomioDifferenza[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomioDifferenza[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomioDifferenza[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomioDifferenza[i - 1] != 0) {
+                            cout << (polinomioDifferenza[i - 1] > 0 ? "+ " : "- ");
+                        }
+                    }
+                    cout << "\033[0m";
+                }
+            
                 cout << "\n\n\033[4mPremere qualsiasi tasto per continuare...\033[0m";
                 getch();
                 system("cls");
@@ -703,7 +653,7 @@ int main() {
                 cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n\n";
 
                 index = 0;
-                // Riassegnamento dei valori di defualt
+
                 for (int i = 0; i < MAX2; i++) {
                     gradoPolinomio[i] = 0;
                     polinomioProdotto[i] = 0;
@@ -739,102 +689,89 @@ int main() {
 
                 // Gestione output del polinomio prodotto
                 cout << "\033[32mIl prodotto tra i due polinomi equivale a: \033[0m\n\n";
+
                 gradoMax = gradoMaxPolinomio1 + gradoMaxPolinomio2;
                 index = 0;
-                isZero = true;
 
                 cout << "(";
 
-                // assegna il segno (+, -) al primo numero del primo polinomio
-                if (polinomio1[gradoMaxPolinomio1] != 0) {
-                    cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio1; i >= 0; i--) {
-                    if (polinomio1[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio1[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio1[i]);
-                        }
+                if (polinomio1[MAX - 1] == 0 && polinomio1[MAX - 2] == 0 && polinomio1[MAX - 3] == 0 && polinomio1[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio1[gradoMaxPolinomio1] != 0) {
+                        cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio1[i - 1] != 0) {
-                        cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio1; i >= 0; i--) {
+                        if (polinomio1[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio1[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio1[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio1[i - 1] != 0) {
+                            cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
-                }
-                cout << "\033[0m";
-                
-                if (isZero) {
-                    cout << "\033[1m" << 0 << "\033[0m";
+                    cout << "\033[0m";
                 }
 
                 cout << ") * (";
 
-                isZero = true;
-
-				// assegna il segno (+, -) al primo numero del secondo polinomio
-                if (polinomio2[gradoMaxPolinomio2] != 0) {
-                    cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio2; i >= 0; i--) {
-                    if (polinomio2[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio2[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio2[i]);
-                        }
+				if (polinomio2[MAX - 1] == 0 && polinomio2[MAX - 2] == 0 && polinomio2[MAX - 3] == 0 && polinomio2[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio2[gradoMaxPolinomio2] != 0) {
+                        cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio2[i - 1] != 0) {
-                        cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio2; i >= 0; i--) {
+                        if (polinomio2[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio2[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio2[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio2[i - 1] != 0) {
+                            cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
+                    cout << "\033[0m";
                 }
-                cout << "\033[0m";
-                
-                if (isZero)
-                    cout << "\033[1m" << 0 << "\033[0m";
 
                 cout << ") = ";
-
-                isZero = true;
 	
-                // assegna il segno (+, -) al primo numero del polinomio prodotto
-                if (polinomioProdotto[index] != 0) {
-                    if (polinomioProdotto[index] > 0) {
-                        cout << "+";
-                    } else  {
-                        cout << "-";
-                    }   
-                }
-
-                cout << "\033[1m";
-                for (int i = gradoMax; i >= 0; i--) {
-                    if (polinomioProdotto[index] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomioProdotto[index]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomioProdotto[index]);
-                        }
-                    }
-                    
-                    if (i != 0 && polinomioProdotto[index + 1] != 0) {
-                        cout << (polinomioProdotto[index + 1] > 0 ? "+ " : "- ");
-                    }
-                    index++;
-                }
-                cout << "\033[0m";
-
-                if (isZero) {
+                if (polinomioProdotto[MAX3 - 1] == 0 && polinomioProdotto[MAX3 - 2] == 0 && polinomioProdotto[MAX3 - 3] == 0 && polinomioProdotto[MAX3 - 4] == 0 && polinomioProdotto[MAX3 - 5] == 0 && polinomioProdotto[MAX3 - 6] == 0 && polinomioProdotto[MAX3 - 7] == 0) {
                     cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomioProdotto[index] != 0) {
+                        cout << (polinomioProdotto[index] > 0 ? "+" : "-");
+                    }
+
+                    cout << "\033[1m";
+                    for (int i = gradoMax; i >= 0; i--) {
+                        if (polinomioProdotto[index] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomioProdotto[index]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomioProdotto[index]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomioProdotto[index + 1] != 0) {
+                            cout << (polinomioProdotto[index + 1] > 0 ? "+ " : "- ");
+                        }
+                        index++;
+                    }
+                    cout << "\033[0m";
                 }
-           	 		    
+                
                 cout << "\n\n\033[4mPremere qualsiasi tasto per continuare...\033[0m";
                 getch();
                 system("cls");
@@ -847,64 +784,57 @@ int main() {
                 cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n\n";
                 
                 cout << "\033[32mQuesti sono i polinomi che hai inserito: \033[0m\n\n";
-                isZero = true;
 
                 cout << "P(1) = ";
                 
-                // assegna il segno (+, -) al primo numero del primo polinomio
-                if (polinomio1[gradoMaxPolinomio1] != 0) {
-                    cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio1; i >= 0; i--) {
-                    if (polinomio1[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio1[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio1[i]);
-                        }
+                if (polinomio1[MAX - 1] == 0 && polinomio1[MAX - 2] == 0 && polinomio1[MAX - 3] == 0 && polinomio1[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio1[gradoMaxPolinomio1] != 0) {
+                        cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio1[i - 1] != 0) {
-                        cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio1; i >= 0; i--) {
+                        if (polinomio1[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio1[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio1[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio1[i - 1] != 0) {
+                            cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
+                    cout << "\033[0m";
                 }
-                cout << "\033[0m";
-
-                if (isZero) {
-                    cout << "\033[1m" << 0 << "\033[0m";
-                }
-
-                isZero = true;
 
                 cout << "  P(2) = ";
 
-				// assegna il segno (+, -) al primo numero del primo polinomio
-                if (polinomio2[gradoMaxPolinomio2] != 0) {
-                    cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio2; i >= 0; i--) {
-                    if (polinomio2[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio2[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio2[i]);
-                        }
+				if (polinomio2[MAX - 1] == 0 && polinomio2[MAX - 2] == 0 && polinomio2[MAX - 3] == 0 && polinomio2[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio2[gradoMaxPolinomio2] != 0) {
+                        cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio2[i - 1] != 0) {
-                        cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio2; i >= 0; i--) {
+                        if (polinomio2[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio2[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio2[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio2[i - 1] != 0) {
+                            cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
-                }
-                cout << "\033[0m";
-
-                if (isZero) {
-                    cout << "\033[1m" << 0 << "\033[0m";
+                    cout << "\033[0m";
                 }
 
                 cout << "\n\n\033[32mLe soluzioni/e del P(1) sono/e': \033[0m\n";
@@ -913,16 +843,18 @@ int main() {
                         aDecimal = polinomio1[MAX - 2], bDecimal = polinomio1[MAX - 3], cDecimal = polinomio1[MAX - 4];
                 
                         deltaDecimal = pow(bDecimal, 2) - 4 * cDecimal * aDecimal;
+
+                        // E' stato sommato + 0.0 per evitare che stampi lo zero negativo -> -0
 					
 						if (deltaDecimal > 0) {
-							x1 = (-bDecimal + sqrt(deltaDecimal)) / (2 * aDecimal);
-                        	x2 = (-bDecimal - sqrt(deltaDecimal)) / (2 * aDecimal);
+							x1 = ((-bDecimal + sqrt(deltaDecimal)) / (2 * aDecimal)) + 0.0;
+                        	x2 = ((-bDecimal - sqrt(deltaDecimal)) / (2 * aDecimal)) + 0.0;
                         	
                         	// Gestione output delle soluzioni del polinomio di secondo grado
                         	cout << "\nx(1) = " << "\033[1m" << x1 <<"\033[0m";
                         	cout << "\nx(2) = " << "\033[1m" << x2 <<"\033[0m";
                         } else if (deltaDecimal == 0) {
-                        	x1 = (-bDecimal + sqrt(deltaDecimal)) / (2 * aDecimal);
+                        	x1 = (-bDecimal / (2 * aDecimal)) + 0.0;
 
 							cout << "\nx(1) e x(2) = " << "\033[1m" << x1 << "\033[0m";
                         } else {
@@ -964,14 +896,14 @@ int main() {
                         deltaDecimal = pow(bDecimal, 2) - 4 * cDecimal * aDecimal;
 
                         if (deltaDecimal > 0) {
-                            x1 = (-bDecimal + sqrt(deltaDecimal)) / (2 * aDecimal);
-                        	x2 = (-bDecimal - sqrt(deltaDecimal)) / (2 * aDecimal);
+                            x1 = ((-bDecimal + sqrt(deltaDecimal)) / (2 * aDecimal)) + 0.0;
+                        	x2 = ((-bDecimal - sqrt(deltaDecimal)) / (2 * aDecimal)) + 0.0;
                         	
                         	// Gestione output delle soluzioni del polinomio di secondo grado
                         	cout << "\nx(1) = " << "\033[1m" << x1 <<"\033[0m\n";
                         	cout << "\nx(2) = " << "\033[1m" << x2 <<"\033[0m\n";
                         } else if (deltaDecimal == 0) {
-                            x1 = (-bDecimal + sqrt(deltaDecimal)) / (2 * aDecimal);
+                            x1 = (-bDecimal / (2 * aDecimal)) + 0.0;
 
 							cout << "\nx(1) e x(2) = " << "\033[1m" << x1 << "\033[0m\n";
                         } else {
@@ -1016,83 +948,75 @@ int main() {
                 cout << "\033[36m|"<< "\033[1m              RICERCA E VISUALIZZAZIONE DEI PUNTI DI INTERSEZIONE              " << "\033[1m|\033[0m\n";
                 cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n\n";
 
-                // Calcolo della differnza dei due polinomi
                 for (int i = MAX - 1; i >= 0; i--) {
                     polinomioDifferenza[i] = polinomio1[i] - polinomio2[i];
                 }
 
                 cout << "\033[32mQuesti sono i polinomi che sono stati inseriti dall'utente: \033[0m\n\n";
-                isZero = true;
 
                 cout << "P(1) = ";
                 
-                // assegna il segno (+, -) al primo numero del primo polinomio
-                if (polinomio1[gradoMaxPolinomio1] != 0) {
-                    cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio1; i >= 0; i--) {
-                    if (polinomio1[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio1[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio1[i]);
-                        }
+                if (polinomio1[MAX - 1] == 0 && polinomio1[MAX - 2] == 0 && polinomio1[MAX - 3] == 0 && polinomio1[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio1[gradoMaxPolinomio1] != 0) {
+                        cout << (polinomio1[gradoMaxPolinomio1] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio1[i - 1] != 0) {
-                        cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio1; i >= 0; i--) {
+                        if (polinomio1[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio1[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio1[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio1[i - 1] != 0) {
+                            cout << (polinomio1[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
+                    cout << "\033[0m";
                 }
-                cout << "\033[0m";
-
-                if (isZero) {
-                    cout << "\033[1m" << 0 << "\033[0m";
-                }
-
-                isZero = true;
 
                 cout << "  P(2) = ";
 
-				// assegna il segno (+, -) al primo numero del primo polinomio
-                if (polinomio2[gradoMaxPolinomio2] != 0) {
-                    cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
-                }
-                
-                cout << "\033[1m";
-                for (int i = gradoMaxPolinomio2; i >= 0; i--) {
-                    if (polinomio2[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                            cout << abs(polinomio2[i]) << "x^" << i << " ";
-                        } else {
-                            cout << abs(polinomio2[i]);
-                        }
+				if (polinomio2[MAX - 1] == 0 && polinomio2[MAX - 2] == 0 && polinomio2[MAX - 3] == 0 && polinomio2[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio2[gradoMaxPolinomio2] != 0) {
+                        cout << (polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-");
                     }
                     
-                    if (i != 0 && polinomio2[i - 1] != 0) {
-                        cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                    cout << "\033[1m";
+                    for (int i = gradoMaxPolinomio2; i >= 0; i--) {
+                        if (polinomio2[i] != 0) {
+                            if (i != 0) {
+                                cout << abs(polinomio2[i]) << "x^" << i << " ";
+                            } else {
+                                cout << abs(polinomio2[i]);
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio2[i - 1] != 0) {
+                            cout << (polinomio2[i - 1] > 0 ? "+ " : "- ");
+                        }
                     }
-                }
-                cout << "\033[0m";
-
-                if (isZero) {
-                    cout << "\033[1m" << 0 << "\033[0m";
+                    cout << "\033[0m";
                 }
 
                 cout << "\n\n\033[32mIl punto di intersezione dei seguenti polinomi e': \033[0m\n\n";
 
-                if (polinomioDifferenza[MAX - 1] == 0) {
+                if (polinomioDifferenza[MAX - 1] == 0 && polinomio1[MAX - 1] == 0 && polinomio2[MAX - 1] == 0) {
                     if (polinomioDifferenza[MAX - 2] != 0) {
                         aDecimal = polinomioDifferenza[MAX - 2], bDecimal = polinomioDifferenza[MAX - 3], cDecimal = polinomioDifferenza[MAX - 4];
                         y1 = 0, y2 = 0;
                         deltaDecimal = pow(bDecimal, 2) - 4 * aDecimal * cDecimal;
 
                         if (deltaDecimal > 0) {
-                            x1 = (-bDecimal + sqrt(deltaDecimal)) / (2 * aDecimal);
-                            x2 = (-bDecimal - sqrt(deltaDecimal)) / (2 * aDecimal);
+                            x1 = ((-bDecimal + sqrt(deltaDecimal)) / (2 * aDecimal)) + 0.0;
+                            x2 = ((-bDecimal - sqrt(deltaDecimal)) / (2 * aDecimal)) + 0.0;
 
                             for (int i = MAX - 2; i >= 0; i--) {
                                 if (polinomio1[i] != 0) {
@@ -1105,13 +1029,14 @@ int main() {
                                         y2 += polinomio1[i];
                                     }
                                 }
+                                
                             }
 
                             cout << "1: (x, y) = " << "(" << "\033[1m" << x1 << ", " << y1 << "\033[0m" << ")" << "\n";
                             cout << "2: (x, y) = " << "(" << "\033[1m" << x2 << ", " << y2 << "\033[0m" << ")";
 
                         } else if (deltaDecimal == 0) {
-                            x1 = -bDecimal / (2 * aDecimal);
+                            x1 = (-bDecimal / (2 * aDecimal)) + 0.0;
 
                             for (int i = MAX - 2; i >= 0; i--) {
                                 if (polinomio1[i] != 0) {
@@ -1157,7 +1082,6 @@ int main() {
 
                             for (int i = MAX - 2; i >= 0; i--) {
                                 if (polinomio1[i] != 0) {
-                                    // i deve essere diverso da zero per evitare situzine 0^0
                                     if (i != 0) 
                                         y1 += pow(x1, i) * polinomio1[i];
                                     else 
@@ -1182,25 +1106,23 @@ int main() {
 	            cout << "\033[36m|"<< "\033[1m                            RAPPRESENTAZIONE GRAFICA                           " << "\033[1m|\033[0m\n";
 	            cout << "\033[36m" << "---------------------------------------------------------------------------------" << "\033[0m\n\n";
         		
-        		cout << "\033[31mSi consiglia di far generare piu' di 5 punti (-5, 5) per una migliore visualizzazione dei polinomi.\033[0m\n";
-        		cout << "\033[31mSe si vuole chiudere la finestra del grafico premere un qualsiasi tasto. NON CHIUDERE LA FINESTRA CON LA X!\033[0m\n";
-        		cout << "\033[31mAlcuni polinomi non saranno ben rappresentati perche' alcuni di essi crescescono di valore molto rapidamente.\033[0m\n\n";
+        		cout << "\033[31mSe si vuole chiudere la finestra del grafico premere un qualsiasi tasto, ma non premere l'icona per chiuderla.\033[0m\n";
+        		cout << "\033[31mAlcuni polinomi non saranno ben rappresentati perche' alcuni di essi crescescono di valore molto rapidamente.\033[0m\n";
+        		cout << "\033[31mL'unita' che e' stata scelta e' 1:33\033[0m\n\n";
             	
             	index = 0;
             	pol1 = "", pol2 = "";
-            	
-            	
-            	/*
-					1. opzione punto di intersezione
-					2. Direttrice e fuoco e vertice 
-					3. Cercare dati su la funzione di secondo grado
-				*/
-            	
-        		cout << "\033[1mQuanti punti vorresti generare? \033[0m";
-        		cin >> valori;
+            
+        		cout << "\033[1mSicuro di voler continuare? (\033[32my\033[0m, \033[31mN\033[0m): \033[0m";
+        		cin >> userChoice;
+        		
+        		if (tolower(userChoice) != 'y') {
+        			system("cls");
+        			continue;
+				}
             	
             	// punti che vanno da -n a n
-            	for (float i = -valori; i <= valori; i += 0.2) {
+            	for (float i = -15; i <= 15; i += 0.2) {
             		punti[index] = i;
             		index++;
 				}
@@ -1211,113 +1133,116 @@ int main() {
             	line(WIDTH / 2, 0, WIDTH / 2, HEIGHT); // Asse delle ordinate
             	line(0, HEIGHT / 2, WIDTH, HEIGHT / 2); // Asse delle ascisse
             	
+            	// Genera delle linee nell'asse delle ascisse 
+            	for (int i = 33; i < WIDTH / 2; i += 33) {
+            		line(WIDTH / 2 + i, HEIGHT / 2 - 12, WIDTH / 2 + i, HEIGHT / 2 + 12);
+            		line(WIDTH / 2 - i, HEIGHT / 2 - 12, WIDTH / 2 - i, HEIGHT / 2 + 12);
+				}
+				
+				// Genera delle linee nell'asse delle ordinate 
+            	for (int i = 33; i < HEIGHT / 2; i += 33) {
+                    line(WIDTH / 2 - 12, HEIGHT / 2 + i, WIDTH / 2 + 12, HEIGHT / 2 + i);
+                    line(WIDTH / 2 - 12, HEIGHT / 2 - i, WIDTH / 2 + 12, HEIGHT / 2 - i);
+				}
+
+                // Inserisci i caratteri y e x all'interno del grafico
+                outtextxy(WIDTH / 2 + 20, 10, "y");
+                outtextxy(WIDTH - 30, HEIGHT / 2 + 20, "x");
+
             	// Rappresentazione grafica del primo polinomio
-            	
-            	// Inserisci i punti all'interno del grafico
             	setcolor(GREEN); // imposta il colore del primo polinomio a rosso
             	for (int i = 0; i < index; i++) {
-            		y1 = 0;
+            		yGrafica = 0;
             		for (int j = gradoMaxPolinomio1; j >= 0; j--) {
             			if (polinomio1[j] != 0) {
-                            // i deve essere diverso da zero per evitare situzine 0^0
                             if (j != 0) 
-                                y1 += pow(punti[i], j) * polinomio1[j];
+                                yGrafica += pow(punti[i], j) * polinomio1[j];
                             else 
-                                y1 += polinomio1[j];
+                                yGrafica += polinomio1[j];
                         }
                         
 					}
-					if (WIDTH / 2 + punti[i] * 24 < WIDTH && HEIGHT / 2 + y1 * 24 * - 1 < HEIGHT) {
-						circle(WIDTH / 2 + punti[i] * 24, HEIGHT / 2 + y1 * 24 * - 1, 3);
+                    // Inserisci i punti all'interno del grafico
+					if (WIDTH / 2 + punti[i] * 33 < WIDTH && HEIGHT / 2 + yGrafica * 33 * - 1 < HEIGHT) {
+						circle(WIDTH / 2 + punti[i] * 33, HEIGHT / 2 + yGrafica * 33 * - 1, 3);
 					}
 				}
 				
 				// Rappresentazione grafica del secondo polinomio
             	
-            	// Inserisci i punti all'interno del grafico
-            	setcolor(YELLOW); // imposta il colore del secondo polinomio a giallo
+            	setcolor(YELLOW); // Imposta il colore del secondo polinomio a giallo
             	for (int i = 0; i < index; i++) {
-            		y1 = 0;
+            		yGrafica = 0;
             		for (int j = gradoMaxPolinomio2; j >= 0; j--) {
             			if (polinomio2[j] != 0) {
-                            // i deve essere diverso da zero per evitare situzine 0^0
-                            if (j != 0) 
-                                y1 += pow(punti[i], j) * polinomio2[j];
-                            else 
-                                y1 += polinomio2[j];
+                            if (j != 0) {
+                            	yGrafica += pow(punti[i], j) * polinomio2[j];
+							} else {
+								yGrafica += polinomio2[j];
+							}
                         }
                         
 					}
-					if (WIDTH / 2 + punti[i] * 24 < WIDTH && HEIGHT / 2 + y1 * 24 * - 1 < HEIGHT) {
-						circle(WIDTH / 2 + punti[i] * 24, HEIGHT / 2 + y1 * 24 * - 1, 3);
+					if (WIDTH / 2 + punti[i] * 33 < WIDTH && HEIGHT / 2 + yGrafica * 33 * - 1 < HEIGHT) {
+						circle(WIDTH / 2 + punti[i] * 33, HEIGHT / 2 + yGrafica * 33 * - 1, 3);
 					}
 				}
 				
 				// Creazione della stringa contenente il primo polinomio
 				pol1 += "P(1) = ";
 				
-				if (polinomio1[gradoMaxPolinomio1] != 0) {
-                    if (polinomio1[gradoMaxPolinomio1] > 0) {
-                    	pol1 += "+";
-					} else {
-						pol1 += "-";
-					}
-                }
-				
-                for (int i = gradoMaxPolinomio1; i >= 0; i--) {
-                    if (polinomio1[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                        	pol1 += to_string(abs(polinomio1[i])) + "x^" + to_string(i) + " ";
-                        } else {
-                            pol1 += to_string(abs(polinomio1[i]));
+                if (polinomio1[MAX - 1] == 0 && polinomio1[MAX - 2] == 0 && polinomio1[MAX - 3] == 0 && polinomio1[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio1[gradoMaxPolinomio1] != 0) {
+                        pol1 += (polinomio1[gradoMaxPolinomio1] > 0) ? "+" : "-";
+                    }
+
+                    for (int i = gradoMaxPolinomio1; i >= 0; i--) {
+                        if (polinomio1[i] != 0) {
+                            if (i != 0) {
+                                pol1 += to_string(abs(polinomio1[i])) + "x^" + to_string(i) + " ";
+                            } else {
+                                pol1 += to_string(abs(polinomio1[i]));
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio1[i - 1] != 0) {
+                            pol1 += polinomio1[i - 1] > 0 ? "+ " : "- ";
                         }
                     }
-                    
-                    if (i != 0 && polinomio1[i - 1] != 0) {
-                        if (polinomio1[i - 1] > 0) {
-                        	pol1 += "+ ";
-						} else {
-							pol1 += "- ";
-						}
-                    }
                 }
-                
+				
                 setcolor(GREEN);
-                outtextxy(450, 600, pol1.c_str());
+                outtextxy(10, 600, pol1.c_str());
                 
                 // Creazione della stringa contenente il secondo polinomio
                 pol2 += "P(2) = ";
 				
-				if (polinomio2[gradoMaxPolinomio2] != 0) {
-                    if (polinomio2[gradoMaxPolinomio2] > 0) {
-                    	pol2 += "+";
-					} else {
-						pol2 += "-";
-					}
-                }
+                if (polinomio2[MAX - 1] == 0 && polinomio2[MAX - 2] == 0 && polinomio2[MAX - 3] == 0 && polinomio2[MAX - 4] == 0) {
+                    cout << "\033[1m" << 0 << "\033[0m";
+                } else {
+                    if (polinomio2[gradoMaxPolinomio2] != 0) {
+                        pol2 += polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-";
+                    }
 				
-                for (int i = gradoMaxPolinomio2; i >= 0; i--) {
-                    if (polinomio2[i] != 0) {
-                        isZero = false;
-                        if (i != 0) {
-                        	pol2 += to_string(abs(polinomio2[i])) + "x^" + to_string(i) + " ";
-                        } else {
-                            pol2 += to_string(abs(polinomio2[i]));
+                    for (int i = gradoMaxPolinomio2; i >= 0; i--) {
+                        if (polinomio2[i] != 0) {
+                            if (i != 0) {
+                                pol2 += to_string(abs(polinomio2[i])) + "x^" + to_string(i) + " ";
+                            } else {
+                                pol2 += to_string(abs(polinomio2[i]));
+                            }
+                        }
+                        
+                        if (i != 0 && polinomio2[i - 1] != 0) {
+                            pol2 += polinomio2[i - 1] > 0 ? "+ " : "- ";
                         }
                     }
-                    
-                    if (i != 0 && polinomio2[i - 1] != 0) {
-                        if (polinomio2[i - 1] > 0) {
-                        	pol2 += "+ ";
-						} else {
-							pol2 += "- ";
-						}
-                    }
                 }
-                
+				
                 setcolor(YELLOW);
-                outtextxy(450, 620, pol2.c_str());
+                outtextxy(10, 620, pol2.c_str());
 				
 				ShowWindow(GetConsoleWindow(), SW_HIDE);
             	getchg();
@@ -1328,8 +1253,8 @@ int main() {
         	}
             case '8': {
             	system("cls");
-            	cout << "Sei sicuro di voler uscire? (\033[32my\033[0m, \033[31mN\033[0m);\n";
-            	cin >> userExit;
+            	cout << "Sei sicuro di voler uscire? (\033[32my\033[0m, \033[31mN\033[0m): ";
+            	userExit = getch();
             	
             	if (tolower(userExit) != 'n') {
             		system("cls");
