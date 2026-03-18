@@ -1108,11 +1108,18 @@ int main() {
         		
         		cout << "\033[31mSe si vuole chiudere la finestra del grafico premere un qualsiasi tasto, ma non premere l'icona per chiuderla.\033[0m\n";
         		cout << "\033[31mAlcuni polinomi non saranno ben rappresentati perche' alcuni di essi crescescono di valore molto rapidamente.\033[0m\n";
+        		cout << "\033[31mIl punto di intersezione tra i due polinomi verra' indicata con un cerchio di colore ciano.\033[0m\n";
         		cout << "\033[31mL'unita' che e' stata scelta e' 1:33\033[0m\n\n";
             	
             	index = 0;
             	pol1 = "", pol2 = "";
-            
+            	double yGraficaPre, xGraficaPre;
+            	bool exception = false;
+            	
+            	for (int i = MAX - 1; i >= 0; i--) {
+                    polinomioDifferenza[i] = polinomio1[i] - polinomio2[i];
+                }
+                
         		cout << "\033[1mSicuro di voler continuare? (\033[32my\033[0m, \033[31mN\033[0m): \033[0m";
         		cin >> userChoice;
         		
@@ -1129,28 +1136,105 @@ int main() {
             	
             	initgraph(&graphDriver, &graphMode, "", WIDTH, HEIGHT);
 
-            	setcolor(WHITE); // imposta il colore degli assi a bianco
+            	setcolor(DARKGRAY); // imposta il colore degli assi a bianco
             	line(WIDTH / 2, 0, WIDTH / 2, HEIGHT); // Asse delle ordinate
             	line(0, HEIGHT / 2, WIDTH, HEIGHT / 2); // Asse delle ascisse
             	
             	// Genera delle linee nell'asse delle ascisse 
+            	setcolor(WHITE); // Imposta il colore delle lineette a magenta
             	for (int i = 33; i < WIDTH / 2; i += 33) {
-            		line(WIDTH / 2 + i, HEIGHT / 2 - 12, WIDTH / 2 + i, HEIGHT / 2 + 12);
-            		line(WIDTH / 2 - i, HEIGHT / 2 - 12, WIDTH / 2 - i, HEIGHT / 2 + 12);
+            		line(WIDTH / 2 + i, HEIGHT / 2 - 8, WIDTH / 2 + i, HEIGHT / 2 + 8);
+            		line(WIDTH / 2 - i, HEIGHT / 2 - 8, WIDTH / 2 - i, HEIGHT / 2 + 8);
 				}
 				
 				// Genera delle linee nell'asse delle ordinate 
             	for (int i = 33; i < HEIGHT / 2; i += 33) {
-                    line(WIDTH / 2 - 12, HEIGHT / 2 + i, WIDTH / 2 + 12, HEIGHT / 2 + i);
-                    line(WIDTH / 2 - 12, HEIGHT / 2 - i, WIDTH / 2 + 12, HEIGHT / 2 - i);
+                    line(WIDTH / 2 - 8, HEIGHT / 2 + i, WIDTH / 2 + 8, HEIGHT / 2 + i);
+                    line(WIDTH / 2 - 8, HEIGHT / 2 - i, WIDTH / 2 + 8, HEIGHT / 2 - i);
 				}
 
                 // Inserisci i caratteri y e x all'interno del grafico
                 outtextxy(WIDTH / 2 + 20, 10, "y");
                 outtextxy(WIDTH - 30, HEIGHT / 2 + 20, "x");
+                
+                // Rappresentazione del punto di intersezione 
+                setcolor(CYAN);
+            	if (polinomioDifferenza[MAX - 1] == 0 && polinomio1[MAX - 1] == 0 && polinomio2[MAX - 1] == 0) {
+                    if (polinomioDifferenza[MAX - 2] != 0) {
+                        aDecimal = polinomioDifferenza[MAX - 2], bDecimal = polinomioDifferenza[MAX - 3], cDecimal = polinomioDifferenza[MAX - 4];
+                        y1 = 0, y2 = 0;
+                        deltaDecimal = pow(bDecimal, 2) - 4 * aDecimal * cDecimal;
 
+                        if (deltaDecimal > 0) {
+                            x1 = ((-bDecimal + sqrt(deltaDecimal)) / (2 * aDecimal)) + 0.0;
+                            x2 = ((-bDecimal - sqrt(deltaDecimal)) / (2 * aDecimal)) + 0.0;
+
+                            for (int i = MAX - 2; i >= 0; i--) {
+                                if (polinomio1[i] != 0) {
+                                    if (i != 0) {
+                                        y1 += pow(x1, i) * polinomio1[i];
+                                        y2 += pow(x2, i) * polinomio1[i];
+                                    } else {
+                                        y1 += polinomio1[i];
+                                        y2 += polinomio1[i];
+                                    }
+                                }  
+                            }
+                            
+                            circle(WIDTH / 2 + x1 * 33, HEIGHT / 2 + y1 * 33 * - 1, 5); 
+	                		circle(WIDTH / 2 + x2 * 33, HEIGHT / 2 + y2 * 33 * - 1, 5);
+                        } else if (deltaDecimal == 0) {
+                            x1 = (-bDecimal / (2 * aDecimal)) + 0.0;
+
+                            for (int i = MAX - 2; i >= 0; i--) {
+                                if (polinomio1[i] != 0) {
+                                    if (i != 0) 
+                                        y1 += pow(x1, i) * polinomio1[i];
+                                    else 
+                                        y1 += polinomio1[i];
+                                }
+                            }
+                            
+                            circle(WIDTH / 2 + x1 * 33, HEIGHT / 2 + y1 * 33 * - 1, 5); 
+                        }
+                    } else {
+                        isImpossibile = false, isIndeterminato = false;
+                        termineNotoDecimal = polinomioDifferenza[MAX - 4], terminePrimoGradoDecimal = polinomioDifferenza[MAX - 3];
+                        y1 = 0;
+
+                        if (termineNotoDecimal > 0 && terminePrimoGradoDecimal > 0) {
+                            termineNotoDecimal = -termineNotoDecimal;
+                        } else if (termineNotoDecimal < 0 && terminePrimoGradoDecimal > 0) {
+                            termineNotoDecimal = abs(termineNotoDecimal);
+                        } else if ((termineNotoDecimal > 0 && terminePrimoGradoDecimal < 0) || (termineNotoDecimal < 0 && terminePrimoGradoDecimal < 0)) {
+                            terminePrimoGradoDecimal = abs(terminePrimoGradoDecimal);
+                        } else if (termineNotoDecimal == 0 && terminePrimoGradoDecimal == 0) {
+                            isIndeterminato = true;
+                        } else if (termineNotoDecimal != 0 && terminePrimoGradoDecimal == 0) {
+                            isImpossibile = true;
+                        }
+
+                        if (isIndeterminato || isImpossibile) {
+                            exception = true;
+                        } else {
+                            x1 = termineNotoDecimal / terminePrimoGradoDecimal;
+
+                            for (int i = MAX - 2; i >= 0; i--) {
+                                if (polinomio1[i] != 0) {
+                                    if (i != 0) 
+                                        y1 += pow(x1, i) * polinomio1[i];
+                                    else 
+                                        y1 += polinomio1[i];
+                                }
+                            }
+                            
+                            circle(WIDTH / 2 + x1 * 33, HEIGHT / 2 + y1 * 33 * - 1, 5);
+                        }
+                    }
+                }
+            
             	// Rappresentazione grafica del primo polinomio
-            	setcolor(GREEN); // imposta il colore del primo polinomio a rosso
+            	setcolor(GREEN); // Imposta il colore del primo polinomio a verde
             	for (int i = 0; i < index; i++) {
             		yGrafica = 0;
             		for (int j = gradoMaxPolinomio1; j >= 0; j--) {
@@ -1164,7 +1248,7 @@ int main() {
 					}
                     // Inserisci i punti all'interno del grafico
 					if (WIDTH / 2 + punti[i] * 33 < WIDTH && HEIGHT / 2 + yGrafica * 33 * - 1 < HEIGHT) {
-						circle(WIDTH / 2 + punti[i] * 33, HEIGHT / 2 + yGrafica * 33 * - 1, 3);
+						circle(WIDTH / 2 + punti[i] * 33, HEIGHT / 2 + yGrafica * 33 * - 1, 3);	
 					}
 				}
 				
@@ -1192,7 +1276,7 @@ int main() {
 				pol1 += "P(1) = ";
 				
                 if (polinomio1[MAX - 1] == 0 && polinomio1[MAX - 2] == 0 && polinomio1[MAX - 3] == 0 && polinomio1[MAX - 4] == 0) {
-                    cout << "\033[1m" << 0 << "\033[0m";
+                    pol2 += "0";
                 } else {
                     if (polinomio1[gradoMaxPolinomio1] != 0) {
                         pol1 += (polinomio1[gradoMaxPolinomio1] > 0) ? "+" : "-";
@@ -1220,7 +1304,7 @@ int main() {
                 pol2 += "P(2) = ";
 				
                 if (polinomio2[MAX - 1] == 0 && polinomio2[MAX - 2] == 0 && polinomio2[MAX - 3] == 0 && polinomio2[MAX - 4] == 0) {
-                    cout << "\033[1m" << 0 << "\033[0m";
+                    pol2 += "0";
                 } else {
                     if (polinomio2[gradoMaxPolinomio2] != 0) {
                         pol2 += polinomio2[gradoMaxPolinomio2] > 0 ? "+" : "-";
