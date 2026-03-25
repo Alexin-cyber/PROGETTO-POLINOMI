@@ -45,7 +45,7 @@ int main() {
     double deltaDecimal, x1, x2, y1, y2, yGrafica, aDecimal, bDecimal, cDecimal, termineNotoDecimal, terminePrimoGradoDecimal;
     
     // Variabili che contegono i punti che servono per rappresentare i polinomi
-    double punti[150];
+    double punti[200];
     
     // Variabili per la creazione della finestra per la grafica
     int graphDriver = 0, graphMode = 0;
@@ -885,7 +885,7 @@ int main() {
                         } 
                     }
                 } else {
-                    cout << "\n\033[31mNon e' possibile trovare le soluzioni di un polinomio di 3 grado!\n\033[0m";
+                    cout << "\n\033[31mNon e' possibile trovare le soluzioni di un polinomio di 3 grado!\033[0m";
                 }
 
                 cout << "\n\n\033[32mLe soluzioni/e del P(2) sono/e': \033[0m\n";
@@ -1076,7 +1076,11 @@ int main() {
                                 cout << "\033[31mLe due rette sono coincidenti!\033[0m";
                             }
                         } else if (isImpossibile) {
-                            cout << "\033[31mLe due rette sono parallele!\033[0m";
+                        	if (polinomio1[MAX - 2] != 0 && polinomio2[MAX - 2] != 0) {
+                        		cout << "\033[31mI due polinomi non si intersecano in nessun punto!\033[0m";
+							} else {
+								cout << "\033[31mLe due rette sono parallele!\033[0m";
+							}
                         } else {
                             x1 = termineNotoDecimal / terminePrimoGradoDecimal;
 
@@ -1108,13 +1112,12 @@ int main() {
         		
         		cout << "\033[31mSe si vuole chiudere la finestra del grafico premere un qualsiasi tasto, ma non premere l'icona per chiuderla.\033[0m\n";
         		cout << "\033[31mAlcuni polinomi non saranno ben rappresentati perche' alcuni di essi crescescono di valore molto rapidamente.\033[0m\n";
-        		cout << "\033[31mIl punto di intersezione tra i due polinomi verra' indicata con un cerchio di colore ciano.\033[0m\n";
+        		cout << "\033[31mIl punto di intersezione tra i due polinomi verra' indicata con un cerchio di colore ciano. Inoltre, il punto di intersezione tra un polinomio di terzo grado e un altro polinomio di grado n, non sara' rappresentato.\033[0m\n";
         		cout << "\033[31mL'unita' che e' stata scelta e' 1:33\033[0m\n\n";
             	
             	index = 0;
             	pol1 = "", pol2 = "";
-            	double yGraficaPre, xGraficaPre;
-            	bool exception = false;
+            	double yGraficaPre, xGraficaPre, yGrafica2;
             	
             	for (int i = MAX - 1; i >= 0; i--) {
                     polinomioDifferenza[i] = polinomio1[i] - polinomio2[i];
@@ -1129,9 +1132,9 @@ int main() {
 				}
             	
             	// punti che vanno da -n a n
-            	for (float i = -15; i <= 15; i += 0.2) {
-            		punti[index] = i;
-            		index++;
+            	for (float i = -20; i <= 20; i += 0.2) {
+					punti[index] = i;
+	            	index++;
 				}
             	
             	initgraph(&graphDriver, &graphMode, "", WIDTH, HEIGHT);
@@ -1181,8 +1184,10 @@ int main() {
                                 }  
                             }
                             
-                            circle(WIDTH / 2 + x1 * 33, HEIGHT / 2 + y1 * 33 * - 1, 5); 
-	                		circle(WIDTH / 2 + x2 * 33, HEIGHT / 2 + y2 * 33 * - 1, 5);
+                            for (double i = 0; i < 5; i += 0.1) {
+                            	circle(WIDTH / 2 + x1 * 33, HEIGHT / 2 + y1 * 33 * - 1, i); 
+	                			circle(WIDTH / 2 + x2 * 33, HEIGHT / 2 + y2 * 33 * - 1, i);
+							}
                         } else if (deltaDecimal == 0) {
                             x1 = (-bDecimal / (2 * aDecimal)) + 0.0;
 
@@ -1195,7 +1200,9 @@ int main() {
                                 }
                             }
                             
-                            circle(WIDTH / 2 + x1 * 33, HEIGHT / 2 + y1 * 33 * - 1, 5); 
+                            for (double i = 0; i < 10; i += 0.5) {
+                            	circle(WIDTH / 2 + x1 * 33, HEIGHT / 2 + y1 * 33 * - 1, i);
+							} 
                         }
                     } else {
                         isImpossibile = false, isIndeterminato = false;
@@ -1214,11 +1221,8 @@ int main() {
                             isImpossibile = true;
                         }
 
-                        if (isIndeterminato || isImpossibile) {
-                            exception = true;
-                        } else {
+                		if (!isImpossibile && !isIndeterminato){
                             x1 = termineNotoDecimal / terminePrimoGradoDecimal;
-
                             for (int i = MAX - 2; i >= 0; i--) {
                                 if (polinomio1[i] != 0) {
                                     if (i != 0) 
@@ -1228,13 +1232,15 @@ int main() {
                                 }
                             }
                             
-                            circle(WIDTH / 2 + x1 * 33, HEIGHT / 2 + y1 * 33 * - 1, 5);
+                            for (double i = 0; i < 5; i += 0.1) {
+                            	circle(WIDTH / 2 + x1 * 33, HEIGHT / 2 + y1 * 33 * - 1, i);
+							}
                         }
                     }
                 }
-            
+                
             	// Rappresentazione grafica del primo polinomio
-            	setcolor(GREEN); // Imposta il colore del primo polinomio a verde
+            	setcolor(BLUE); // Imposta il colore del primo polinomio a verde
             	for (int i = 0; i < index; i++) {
             		yGrafica = 0;
             		for (int j = gradoMaxPolinomio1; j >= 0; j--) {
@@ -1246,15 +1252,19 @@ int main() {
                         }
                         
 					}
-                    // Inserisci i punti all'interno del grafico
-					if (WIDTH / 2 + punti[i] * 33 < WIDTH && HEIGHT / 2 + yGrafica * 33 * - 1 < HEIGHT) {
-						circle(WIDTH / 2 + punti[i] * 33, HEIGHT / 2 + yGrafica * 33 * - 1, 3);	
+
+					if (WIDTH / 2 + punti[i] * 33 < WIDTH && HEIGHT / 2 + yGrafica * 33 * - 1 < HEIGHT && WIDTH / 2 + xGraficaPre * 33 < WIDTH && HEIGHT / 2 + yGraficaPre * 33 * - 1 < HEIGHT) {
+						if (i != 0) {
+							line(WIDTH / 2 + punti[i] * 33, HEIGHT / 2 + yGrafica * 33 * - 1, WIDTH / 2 + xGraficaPre * 33, HEIGHT / 2 + yGraficaPre * 33 * - 1);	
+						}
 					}
+					
+					yGraficaPre = yGrafica;
+					xGraficaPre = punti[i];
 				}
 				
 				// Rappresentazione grafica del secondo polinomio
-            	
-            	setcolor(YELLOW); // Imposta il colore del secondo polinomio a giallo
+            	setcolor(RED); // Imposta il colore del secondo polinomio a giallo
             	for (int i = 0; i < index; i++) {
             		yGrafica = 0;
             		for (int j = gradoMaxPolinomio2; j >= 0; j--) {
@@ -1267,16 +1277,21 @@ int main() {
                         }
                         
 					}
-					if (WIDTH / 2 + punti[i] * 33 < WIDTH && HEIGHT / 2 + yGrafica * 33 * - 1 < HEIGHT) {
-						circle(WIDTH / 2 + punti[i] * 33, HEIGHT / 2 + yGrafica * 33 * - 1, 3);
+					if (WIDTH / 2 + punti[i] * 33 < WIDTH && HEIGHT / 2 + yGrafica * 33 * - 1 < HEIGHT && WIDTH / 2 + xGraficaPre * 33 < WIDTH && HEIGHT / 2 + yGraficaPre * 33 * - 1 < HEIGHT) {
+						if (i != 0) {
+							line(WIDTH / 2 + punti[i] * 33, HEIGHT / 2 + yGrafica * 33 * - 1, WIDTH / 2 + xGraficaPre * 33, HEIGHT / 2 + yGraficaPre * 33 * - 1);	
+						}
 					}
+					
+					yGraficaPre = yGrafica;
+					xGraficaPre = punti[i];
 				}
 				
 				// Creazione della stringa contenente il primo polinomio
 				pol1 += "P(1) = ";
 				
                 if (polinomio1[MAX - 1] == 0 && polinomio1[MAX - 2] == 0 && polinomio1[MAX - 3] == 0 && polinomio1[MAX - 4] == 0) {
-                    pol2 += "0";
+                    pol1 += "0";
                 } else {
                     if (polinomio1[gradoMaxPolinomio1] != 0) {
                         pol1 += (polinomio1[gradoMaxPolinomio1] > 0) ? "+" : "-";
@@ -1297,11 +1312,12 @@ int main() {
                     }
                 }
 				
-                setcolor(GREEN);
+                setcolor(BLUE);
                 outtextxy(10, 600, pol1.c_str());
                 
                 // Creazione della stringa contenente il secondo polinomio
                 pol2 += "P(2) = ";
+				
 				
                 if (polinomio2[MAX - 1] == 0 && polinomio2[MAX - 2] == 0 && polinomio2[MAX - 3] == 0 && polinomio2[MAX - 4] == 0) {
                     pol2 += "0";
@@ -1325,7 +1341,7 @@ int main() {
                     }
                 }
 				
-                setcolor(YELLOW);
+                setcolor(RED);
                 outtextxy(10, 620, pol2.c_str());
 				
 				ShowWindow(GetConsoleWindow(), SW_HIDE);
